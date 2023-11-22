@@ -48,7 +48,8 @@ def main():
     parser.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of topology search.")
 
     parser.add_argument("--divide", required=False,action='store_true', help="Model division of cells")
-    parser.add_argument("--beta", type=float, required=False,default=1,help="Magnitude of location displacement during division")
+    parser.add_argument("--given_beta", type=float, required=False,default=1,help="Fixed beta, otherwise will estimate")
+
 
     if len(argv) == 1:
         parser.print_help()
@@ -108,7 +109,6 @@ def main():
                 known_locations[cellID] = (float(x),float(y))
 
         if args["divide"]:
-            print(args["divide"])
             print("Optimization by Spalin-Divide: Scipy-SLSQP using spatial information")
             selected_solver = Spatial_Division_solver
         else:
@@ -125,13 +125,16 @@ def main():
     if args["divide"]:
         if args["spatial"] is None:
             print("Can't use divide without spatial information")
-            exit(0)
+
+
+
 
     # main tasks        
     data = {'charMatrices':[msa],'locations':known_locations} 
     prior = {'Q':[Q]} 
     
-    params = {'sigma':22,'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'beta': args['beta'] if args['beta'] is not None else 1}  
+
+    params = {'sigma':22,'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'beta': args['given_beta']}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
 

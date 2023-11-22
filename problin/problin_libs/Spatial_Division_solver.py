@@ -17,13 +17,12 @@ class Spatial_Division_solver(SpaLin_solver):
 	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 		self.beta = params['beta']
-		self.given_locations = data['locations']
+		if self.beta == None:
+			# ignore the nonlinear constraint
+			pass
+		self.leaf_locations = data['locations']
 		self.params.sigma = params['sigma']
-		self.inferred_locations = {} if 'locations' not in params else params['locations']
 		self.params.displacement_amounts = {}
-
-		for x in self.given_locations:
-			self.inferred_locations[x] = self.given_locations[x]
 
 		self.num_internal = 0
 		for tree in self.trees:
@@ -40,7 +39,7 @@ class Spatial_Division_solver(SpaLin_solver):
 			for one_tree in self.trees:
 				this_tree_locations = deepcopy(locations)
 				tree = deepcopy(one_tree)
-				tree.scale_edges(1/mutation_rate)
+				#tree.scale_edges(1/mutation_rate)
 				tree.scale_edges(sigma**2)
 
 
@@ -77,7 +76,9 @@ class Spatial_Division_solver(SpaLin_solver):
 								new_brlen_k = node_k.edge_length + (node_i.edge_length * node_j.edge_length)/(node_i.edge_length + node_j.edge_length)
 								new_mean_k = (node_j.edge_length / (node_i.edge_length + node_j.edge_length)) * stored_means_nodes_in_tree[node_i.label] + (node_i.edge_length / (node_i.edge_length + node_j.edge_length)) * stored_means_nodes_in_tree[node_j.label]
 
-
+								# initialize the internal node if it doesn't exist:
+								if node_k.label not in this_tree_locations:
+									this_tree_locations[node_k.label] = (0,0)
 								if i == 0:
 									this_tree_locations[node_k.label] = ((node_j.edge_length / (node_i.edge_length + node_j.edge_length)) * this_tree_locations[node_i.label][0] + (node_i.edge_length / (node_i.edge_length + node_j.edge_length)) * this_tree_locations[node_j.label][0],this_tree_locations[node_k.label][1])
 								else:
@@ -107,7 +108,7 @@ class Spatial_Division_solver(SpaLin_solver):
 		return llh
 
 	def __llh__(self):
-		return self.lineage_llh() + self.llh_of_separation_force(self.inferred_locations, self.params.displacement_amounts)
+		return self.lineage_llh() + self.llh_of_separation_force(self.leaf_locations, self.params.displacement_amounts)
 		return final_llh
 
 	def ini_sep(self,fixed_seps = None):
@@ -116,7 +117,10 @@ class Spatial_Division_solver(SpaLin_solver):
 		else:
 			forces = []     
 			idx = 0
-			sep_force = self.beta / sqrt(2)
+			if self.beta != None:
+				sep_force = self.beta / sqrt(2)
+			else:
+				sep_force = 1 / sqrt(2)
 			for tree in self.trees:
 				for node in tree.traverse_postorder():
 					if node.num_children() == 2:
@@ -137,22 +141,11 @@ class Spatial_Division_solver(SpaLin_solver):
 		x0_brlens = self.ini_brlens()
 		x0_nu = self.ini_nu(fixed_nu=fixed_nu)
 		x0_phi = self.ini_phi(fixed_phi=fixed_phi)
-		#x_lin = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
-		min_x = min([x[0] for x in self.given_locations.values()])
-		min_y = min([x[1] for x in self.given_locations.values()])
-		max_x = max([x[0] for x in self.given_locations.values()])
-		max_y = max([x[1] for x in self.given_locations.values()])
-		x0_spa = []
-		for tree in self.trees:
-			for node in tree.traverse_postorder():
-				if not node.label in self.given_locations:
-					x0_spa += [min_x+(max_x-min_x)*random(),min_y+(max_y-min_y)*random()]
 		x0_sigma = 22 # hard code for now     
 		x0_sep_forces = self.ini_sep()
 
 
-		ini_params = (['brlens','nu','phi','spatial','sep_forces','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi],'spatial':x0_spa, 'sep_forces': x0_sep_forces,'sigma':[x0_sigma]})
-		#return x_lin, x_spa + [x_sigma]
+		ini_params = (['brlens','nu','phi','sep_forces','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'sigma':[x0_sigma]})
 		return ini_params 
 
 	def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,optimize_brlens=True,verbose=1,ultra_constr=False):
@@ -171,6 +164,7 @@ class Spatial_Division_solver(SpaLin_solver):
 			if p != 'brlens' or optimize_brlens:
 				x0 = x0 + ini_params[p]
 		self.az_partition()
+
 		bounds = self.get_bound(fixed_phi=fixed_phi,fixed_nu=fixed_nu,include_brlens=optimize_brlens)
 		constraints = []    
 		param_length = len(x0)
@@ -204,10 +198,6 @@ class Spatial_Division_solver(SpaLin_solver):
 			# create the constraints for the separation amount parameters
 			# find the index where the values start
 			index_of_displacement_start = self.num_edges + 2
-			for tree in self.trees:
-				for node in tree.traverse_postorder():
-					if not node.label in self.given_locations:
-						index_of_displacement_start  += 2
 
 			# x,y displacements of sister nodes are symmetric
 			curr_internal = 0
@@ -253,8 +243,8 @@ class Spatial_Division_solver(SpaLin_solver):
 							array_of_sums.append(sum2)
 							curr_internal += 4
 				return array_of_sums
-
-			constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.beta**2 * 0.9] * self.num_internal * 2, [self.beta**2 * 1.1] * self.num_internal * 2))
+			if self.beta != None:
+				constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.beta**2 * 0.9] * self.num_internal * 2, [self.beta**2 * 1.1] * self.num_internal * 2))
 
 		disp = (verbose > 0)
 		out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
@@ -276,11 +266,6 @@ class Spatial_Division_solver(SpaLin_solver):
 		self.x2nu(x,fixed_nu=fixed_nu,include_brlens=include_brlens)
 		self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
 		i = self.num_edges + 2
-		for tree in self.trees:
-			for node in tree.traverse_postorder():
-				if not node.label in self.given_locations:
-					self.inferred_locations[node.label] = (x[i],x[i+1])
-					i += 2
 		self.x2displacement(x,i)
 		self.params.sigma = x[-1] 
 
@@ -297,13 +282,6 @@ class Spatial_Division_solver(SpaLin_solver):
 
 					i += 4
 
-	def x2brlen(self,x):
-		i = 0
-		for tree in self.trees:
-			for node in tree.traverse_postorder():
-				node.edge_length = x[i]
-				i += 1
-
 	def bound_sep_force(self):
 		num_nodes = 0
 		for tree in self.trees:
@@ -311,20 +289,23 @@ class Spatial_Division_solver(SpaLin_solver):
 				# number of separation forces equal to the 
 				if node.is_leaf() == False:
 					num_nodes += 2
-		lower_bound = [-self.beta] * (num_nodes * 2) # times 2 for both x and y coordinate
-		upper_bound = [self.beta] * (num_nodes * 2)
+		if self.beta != None:
+			lower_bound = [-self.beta] * (num_nodes * 2) # times 2 for both x and y coordinate
+			upper_bound = [self.beta] * (num_nodes * 2)
+		else:
+			lower_bound = [-100] * (num_nodes * 2) # times 2 for both x and y coordinate
+			upper_bound = [-100] * (num_nodes * 2)			
 		return lower_bound, upper_bound
 
 	def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None,include_brlens=True):
 		br_lower,br_upper = self.bound_brlen() if include_brlens else ([],[])
 		phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
 		nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
-		spa_lower,spa_upper = self.bound_locations()
 		sigma_lower,sigma_upper = self.bound_sigma()
 		sep_force_lower, sep_force_upper = self.bound_sep_force()
 
-		combined_lower = br_lower+[nu_lower,phi_lower]+spa_lower+sep_force_lower + [sigma_lower]
-		combined_upper = br_upper+[nu_upper,phi_upper]+spa_upper+sep_force_upper +[sigma_upper]
+		combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
+		combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper +[sigma_upper]
 		bounds = optimize.Bounds(combined_lower,combined_upper,keep_feasible=keep_feasible)
 		return bounds   
 

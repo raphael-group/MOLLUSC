@@ -14,14 +14,11 @@ from copy import deepcopy
 class SpaLin_solver(ML_solver):
     def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
         super(SpaLin_solver,self).__init__(treeTopo,data,prior,params)
-        self.given_locations = data['locations']
+        self.leaf_locations = data['locations']
         self.params.sigma = params['sigma']
-        self.inferred_locations = {} if 'locations' not in params else params['locations']
-        for x in self.given_locations:
-            self.inferred_locations[x] = self.given_locations[x]
     
     def get_params(self):
-        return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.inferred_locations}
+        return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations}
     
     def show_params(self):                   
         nllh = self.negative_llh() 
@@ -52,7 +49,7 @@ class SpaLin_solver(ML_solver):
         for one_tree in self.trees:
             tree = deepcopy(one_tree)
             # need to correct the brlens with the mutation rate param as well as multiply by variance
-            tree.scale_edges(1/mutation_rate)
+            #tree.scale_edges(1/mutation_rate)
             tree.scale_edges(self.params.sigma**2)
 
 
@@ -124,22 +121,8 @@ class SpaLin_solver(ML_solver):
         return llh 
 
     def __llh__(self):
-        return self.lineage_llh() + self.spatial_llh_marginalized(self.inferred_locations)
+        return self.lineage_llh() + self.spatial_llh_marginalized(self.leaf_locations)
         return final_llh
-    
-    '''
-    def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False,optimize_brlens=True):
-        param_cats,ini_params = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
-        x0_brlens = ini_params['brlens'] if optimize_brlens else []
-        x0_phi = ini_params['phi']
-        x0_nu = ini_params['nu']
-        x_lin_ini = x0_brlens + x0_phi + x0_nu
-        x_spa_ini = ini_params['spatial']           
-        for i in range(30):
-            if optimize_brlens:
-                f,status = self.optimize_brlen(x_lin_ini,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr)
-            f,status = self.optimize_locations()
-        return f,status '''
 
     def optimize_brlen(self,x0,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize branch lengths, phi, and nu using a specific initial point identified by the input randseed
@@ -186,73 +169,15 @@ class SpaLin_solver(ML_solver):
         else:
             f,params = None,None
         status = "optimal" if out.success else out.message
-        return f,status
-
-    def optimize_locations(self):
-        idx = 0
-        for tree in self.trees:
-            for node in tree.traverse_preorder():
-                node.idx = idx
-                idx += 1
-        N = idx
-        A_x = []
-        b_x = []
-        A_y = []
-        b_y = []
-        for tree in self.trees:
-            for node in tree.traverse_postorder():
-                if node.label in self.given_locations:
-                    a = [0]*N
-                    a[node.idx] = 1
-                    A_x.append(a)
-                    A_y.append(a)
-                    b_x.append(self.given_locations[node.label][0])
-                    b_y.append(self.given_locations[node.label][1])
-                elif node.is_root():
-                    a = [0]*N
-                    a[node.idx] = 1
-                    a[node.children[0].idx] = -1
-                    A_x.append(a)
-                    A_y.append(a)
-                    b_x.append(0)
-                    b_y.append(0)
-                else:
-                    p = node.parent
-                    c1,c2 = node.children
-                    a = [0]*N
-                    a[node.idx] = 1/node.edge_length + 1/c1.edge_length + 1/c2.edge_length
-                    a[c1.idx] = -1/c1.edge_length
-                    a[c2.idx] = -1/c2.edge_length
-                    a[p.idx] = -1/node.edge_length
-                    A_x.append(a)
-                    A_y.append(a)
-                    b_x.append(0)
-                    b_y.append(0)        
-            x = np.dot(np.linalg.pinv(A_x),b_x)
-            y = np.dot(np.linalg.pinv(A_y),b_y)
-            for tree in self.trees:
-                for node in tree.traverse_postorder():
-                    self.inferred_locations[node.label] = (x[node.idx],y[node.idx])
-        f = self.negative_llh()
-        status = "optimal"
-        return f,status            
+        return f,status        
     
     def ini_all(self,fixed_phi=None,fixed_nu=None):
         x0_brlens = self.ini_brlens()
         x0_nu = self.ini_nu(fixed_nu=fixed_nu)
         x0_phi = self.ini_phi(fixed_phi=fixed_phi)
         #x_lin = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
-        min_x = min([x[0] for x in self.given_locations.values()])
-        min_y = min([x[1] for x in self.given_locations.values()])
-        max_x = max([x[0] for x in self.given_locations.values()])
-        max_y = max([x[1] for x in self.given_locations.values()])
-        x0_spa = []
-        for tree in self.trees:
-            for node in tree.traverse_postorder():
-                if not node.label in self.given_locations:
-                    x0_spa += [min_x+(max_x-min_x)*random(),min_y+(max_y-min_y)*random()]
         x0_sigma = 22 # hard code for now        
-        ini_params = (['brlens','nu','phi','spatial','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi],'spatial':x0_spa,'sigma':[x0_sigma]})
+        ini_params = (['brlens','nu','phi','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi],'sigma':[x0_sigma]})
         #return x_lin, x_spa + [x_sigma]
         return ini_params 
     
@@ -262,20 +187,8 @@ class SpaLin_solver(ML_solver):
         self.x2nu(x,fixed_nu=fixed_nu,include_brlens=include_brlens)
         self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
         i = self.num_edges + 2
-        for tree in self.trees:
-            for node in tree.traverse_postorder():
-                if not node.label in self.given_locations:
-                    self.inferred_locations[node.label] = (x[i],x[i+1])
-                    i += 2
         self.params.sigma = x[-1]        
                
-    def bound_locations(self,lower=-np.inf,upper=np.inf):
-        N = 0
-        for tree in self.trees:
-            for node in tree.traverse_postorder():
-                N += 2*int(not node.label in self.given_locations)
-        return [lower]*N,[upper]*N
-
     def bound_sigma(self):
         return (eps,np.inf)    
 
@@ -283,7 +196,6 @@ class SpaLin_solver(ML_solver):
         br_lower,br_upper = self.bound_brlen() if include_brlens else ([],[])
         phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
         nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
-        spa_lower,spa_upper = self.bound_locations()
         sigma_lower,sigma_upper = self.bound_sigma()
-        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+spa_lower+[sigma_lower],br_upper+[nu_upper,phi_upper]+spa_upper+[sigma_upper],keep_feasible=keep_feasible)
+        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+[sigma_lower],br_upper+[nu_upper,phi_upper]+[sigma_upper],keep_feasible=keep_feasible)
         return bounds   

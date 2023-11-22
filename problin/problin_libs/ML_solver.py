@@ -364,7 +364,6 @@ class ML_solver(Virtual_solver):
 
         disp = (verbose > 0)
 
-        print("x0", len(x0))
         out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
 
         if out.success:
