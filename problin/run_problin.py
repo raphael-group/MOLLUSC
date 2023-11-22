@@ -135,7 +135,7 @@ def main():
     prior = {'Q':[Q]} 
     
 
-    params = {'sigma':22,'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'beta': args['given_beta'], 'incl_beta_bound': args['incl_beta_bound']}  
+    params = {'sigma':22,'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'beta': args['given_beta'], 'incl_beta_bound': args['incl_beta_bound'],  'displacement_amounts': {}}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
 
@@ -198,23 +198,22 @@ def main():
             has_newly_inferred = False
             inferred_locations = {}
             mySolver = myTopoSearch.get_solver()
-            for cell in mySolver.inferred_locations:
-                if not cell in known_locations:
-                    has_newly_inferred = True
-                    inferred_locations[cell] = mySolver.inferred_locations[cell]
-            if has_newly_inferred:
-                fout.write("Inferred locations:\n")
-                for cell in inferred_locations:
-                    x,y = inferred_locations[cell]
-                    fout.write(cell + " " + str(x) + " " + str(y) + "\n")
-            else:
-                fout.write("All cell locations were given as input.")  
+            # for cell in mySolver.inferred_locations:
+            #     if not cell in known_locations:
+            #         has_newly_inferred = True
+            #         inferred_locations[cell] = mySolver.inferred_locations[cell]
+            # if has_newly_inferred:
+            #     fout.write("Inferred locations:\n")
+            #     for cell in inferred_locations:
+            #         x,y = inferred_locations[cell]
+            #         fout.write(cell + " " + str(x) + " " + str(y) + "\n")
+            # else:
+            #     fout.write("All cell locations were given as input.")  
 
             if args["divide"] is not None:
                 for cell in mySolver.params.displacement_amounts:
-                    x_displace = mySolver.params.displacement_amounts[cell]
-                    y_displace = mySolver.params.displacement_amounts[cell]
-                    fout.write(cell + " displacement amoiunt" +  " " + str(x_displace) + " " + str(y_displace) + "\n")
+                    displace = mySolver.params.displacement_amounts[cell]
+                    fout.write(cell + " displacement amount" +  " " + str(displace) + "\n")
 
 
     stop_time = timeit.default_timer()
