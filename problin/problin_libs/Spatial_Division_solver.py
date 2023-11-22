@@ -17,11 +17,19 @@ class Spatial_Division_solver(SpaLin_solver):
 	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 		self.beta = params['beta']
+		self.optimize_beta = False
 		if self.beta == None:
 			# ignore the nonlinear constraint
-			pass
+			print("no beta provided")
+			self.optimize_beta = True
+			self.beta = 1
 		self.leaf_locations = data['locations']
 		self.params.sigma = params['sigma']
+		self.incl_beta_bound = params['incl_beta_bound']
+		
+		if self.incl_beta_bound == False:
+			self.optimize_beta == False
+
 		self.params.displacement_amounts = {}
 
 		self.num_internal = 0
@@ -144,8 +152,10 @@ class Spatial_Division_solver(SpaLin_solver):
 		x0_sigma = 22 # hard code for now     
 		x0_sep_forces = self.ini_sep()
 
-
-		ini_params = (['brlens','nu','phi','sep_forces','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'sigma':[x0_sigma]})
+		if self.optimize_beta == False:
+			ini_params = (['brlens','nu','phi','sep_forces','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'sigma':[x0_sigma]})
+		else:
+			ini_params = (['brlens','nu','phi','sep_forces','beta', 'sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'beta': [1], 'sigma':[x0_sigma]})
 		return ini_params 
 
 	def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,optimize_brlens=True,verbose=1,ultra_constr=False):
@@ -243,7 +253,7 @@ class Spatial_Division_solver(SpaLin_solver):
 							array_of_sums.append(sum2)
 							curr_internal += 4
 				return array_of_sums
-			if self.beta != None:
+			if self.incl_beta_bound == True:
 				constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.beta**2 * 0.9] * self.num_internal * 2, [self.beta**2 * 1.1] * self.num_internal * 2))
 
 		disp = (verbose > 0)
@@ -257,6 +267,7 @@ class Spatial_Division_solver(SpaLin_solver):
 		else:
 			f,params = None,None
 		status = "optimal" if out.success else out.message
+		print(self.beta)
 		return f,status
 
 
@@ -267,6 +278,8 @@ class Spatial_Division_solver(SpaLin_solver):
 		self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
 		i = self.num_edges + 2
 		self.x2displacement(x,i)
+		if self.optimize_beta == True:
+			self.beta = x[-2]
 		self.params.sigma = x[-1] 
 
 	def x2displacement(self,x,idx):
@@ -303,9 +316,15 @@ class Spatial_Division_solver(SpaLin_solver):
 		nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
 		sigma_lower,sigma_upper = self.bound_sigma()
 		sep_force_lower, sep_force_upper = self.bound_sep_force()
+		beta_lower, beta_upper = (0,10)
 
-		combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
-		combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper +[sigma_upper]
+		if self.optimize_beta == False:
+			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
+			combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper +[sigma_upper]
+		else:
+			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [beta_lower] + [sigma_lower]
+			combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper + [beta_upper] + [sigma_upper]
+
 		bounds = optimize.Bounds(combined_lower,combined_upper,keep_feasible=keep_feasible)
 		return bounds   
 
