@@ -210,7 +210,7 @@ def main():
             # else:
             #     fout.write("All cell locations were given as input.")  
 
-            if args["divide"] is not None:
+            if args["divide"] == True:
                 for cell in mySolver.params.displacement_amounts:
                     displace = mySolver.params.displacement_amounts[cell]
                     fout.write(cell + " displacement amount" +  " " + str(displace) + "\n")
