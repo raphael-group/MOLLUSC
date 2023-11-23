@@ -62,7 +62,7 @@ class Spatial_Division_solver(SpaLin_solver):
 				for node in tree.traverse_leaves():
 					sum_of_displacement = 0
 					for node_p in node.traverse_ancestors():
-						if (node_p.label == 'virtual'):
+						if (node_p.label == 'virtual') or (node_p.is_root()):
 							pass
 						else:
 							sum_of_displacement += displacement_amounts[node_p.label][i]
