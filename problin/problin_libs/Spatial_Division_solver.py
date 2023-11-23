@@ -17,12 +17,13 @@ class Spatial_Division_solver(SpaLin_solver):
 	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'beta': 0, 'displacement_amounts': {} }):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 
-
+		self.given_beta = True
 		self.params.beta = params['beta']
 		self.params.optimize_beta = False
 		if self.params.beta == None:
 			# ignore the nonlinear constraint
 			self.params.optimize_beta = True
+			self.given_beta = False
 			self.params.beta = 1
 		self.leaf_locations = data['locations']
 		self.params.sigma = params['sigma']
@@ -305,12 +306,12 @@ class Spatial_Division_solver(SpaLin_solver):
 				# number of separation forces equal to the 
 				if node.is_leaf() == False:
 					num_nodes += 2
-		if self.params.beta != None:
+		if self.params.incl_beta_bound == True and (self.given_beta == True or self.optimize_beta == True):
 			lower_bound = [-self.params.beta] * (num_nodes * 2) # times 2 for both x and y coordinate
 			upper_bound = [self.params.beta] * (num_nodes * 2)
 		else:
 			lower_bound = [-100] * (num_nodes * 2) # times 2 for both x and y coordinate
-			upper_bound = [-100] * (num_nodes * 2)			
+			upper_bound = [100] * (num_nodes * 2)			
 		return lower_bound, upper_bound
 
 	def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None,include_brlens=True):
