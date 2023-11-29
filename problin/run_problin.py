@@ -49,7 +49,7 @@ def main():
 
     parser.add_argument("--divide", required=False,action='store_true', help="Model division of cells")
     parser.add_argument("--given_beta", type=float, required=False,default=None,help="Fixed beta, otherwise will estimate")
-    parser.add_argument("--incl_beta_bound", action='store_true',required=False,default=False,help="Fixed beta, otherwise will estimate")
+    parser.add_argument("--incl_beta_bound", action='store_true',required=False,default=False,help="Use the nonlinear constraint (and use beta when bounding the displacement amounts)")
 
 
     if len(argv) == 1:

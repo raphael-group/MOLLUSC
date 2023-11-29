@@ -1,6 +1,6 @@
 from treeswift import *
 import math
-from math import log,exp,sqrt,pi
+from math import log,exp,sqrt,pi,comb
 from random import random, seed
 from scipy import optimize
 from scipy.sparse import csr_matrix
@@ -23,8 +23,9 @@ class Spatial_Division_solver(SpaLin_solver):
 		if self.params.beta == None:
 			# ignore the nonlinear constraint
 			self.params.optimize_beta = True
+			print("optimizing beta")
 			self.given_beta = False
-			self.params.beta = 1
+			self.params.beta = 100
 		self.leaf_locations = data['locations']
 		self.params.sigma = params['sigma']
 		self.params.incl_beta_bound = params['incl_beta_bound']
@@ -240,26 +241,60 @@ class Spatial_Division_solver(SpaLin_solver):
 			constraints.append(optimize.LinearConstraint(csr_matrix(symmetric_y_constraint_matrix),[0]*len(symmetric_y_constraint_matrix),[0]*len(symmetric_y_constraint_matrix),keep_feasible=False))
 
 			# sum of squares of x,y displacements are equal to a constant
-			def sum_of_squares(x):
-				# return x^2 + y^2 for all internal nodes
-				curr_internal = 0
-				array_of_sums = []
-				for tree in self.trees:
-					for node in tree.traverse_postorder():
-						if node.num_children() == 2:
-							x_squared = x[index_of_displacement_start + curr_internal]**2
-							y_squared = x[index_of_displacement_start + curr_internal+1]**2
-							sum1 = x_squared + y_squared
-							array_of_sums.append(sum1)
-
-							x_squared = x[index_of_displacement_start + curr_internal+2]**2
-							y_squared = x[index_of_displacement_start + curr_internal+3]**2
-							sum2 = x_squared + y_squared
-							array_of_sums.append(sum2)
-							curr_internal += 4
-				return array_of_sums
 			if self.params.incl_beta_bound == True:
-				constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.params.beta**2 * 0.9] * self.num_internal * 2, [self.params.beta**2 * 1.1] * self.num_internal * 2))
+				if self.params.optimize_beta == True:
+
+					def diff_of_sum_of_squares(x):
+						# return difference of x_displace**2 + y_displace**2 between all internal nodes
+						curr_internal = 0
+						sum_of_xy_displacements = []
+						for tree in self.trees:
+							for node in tree.traverse_postorder():
+								if node.num_children() == 2:
+									x_squared = x[index_of_displacement_start + curr_internal]**2
+									y_squared = x[index_of_displacement_start + curr_internal+1]**2
+
+									sum_of_xy_displacements += [x_squared + y_squared]
+									curr_internal += 2
+
+									x_squared = x[index_of_displacement_start + curr_internal]**2
+									y_squared = x[index_of_displacement_start + curr_internal+1]**2
+
+									sum_of_xy_displacements += [x_squared + y_squared]
+									curr_internal += 2
+
+						sum_of_differences = []
+						for index_i in range(len(sum_of_xy_displacements)):
+							for index_j in range(len(sum_of_xy_displacements)):
+								if index_i != index_j:
+									sum_of_differences += [sum_of_xy_displacements[index_i] - sum_of_xy_displacements[index_j]]
+						return sum_of_differences
+
+					num_constraints = (self.num_internal*2)**2 - (self.num_internal*2)
+					constraints.append(optimize.NonlinearConstraint(diff_of_sum_of_squares, [-0.1] * num_constraints, [0.1] * num_constraints))
+
+
+				if self.params.optimize_beta == False:
+					def sum_of_squares(x):
+						# return x^2 + y^2 for all internal nodes
+						curr_internal = 0
+						array_of_sums = []
+						for tree in self.trees:
+							for node in tree.traverse_postorder():
+								if node.num_children() == 2:
+									x_squared = x[index_of_displacement_start + curr_internal]**2
+									y_squared = x[index_of_displacement_start + curr_internal+1]**2
+									sum1 = x_squared + y_squared
+									array_of_sums.append(sum1)
+
+									x_squared = x[index_of_displacement_start + curr_internal+2]**2
+									y_squared = x[index_of_displacement_start + curr_internal+3]**2
+									sum2 = x_squared + y_squared
+									array_of_sums.append(sum2)
+									curr_internal += 4
+						return array_of_sums
+
+					constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.params.beta**2 * 0.9] * self.num_internal * 2, [self.params.beta**2 * 1.1] * self.num_internal * 2))
 
 		disp = (verbose > 0)
 		out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
@@ -306,7 +341,7 @@ class Spatial_Division_solver(SpaLin_solver):
 				# number of separation forces equal to the 
 				if node.is_leaf() == False:
 					num_nodes += 2
-		if self.params.incl_beta_bound == True and (self.given_beta == True or self.optimize_beta == True):
+		if self.params.incl_beta_bound == True and (self.given_beta == True):
 			lower_bound = [-self.params.beta] * (num_nodes * 2) # times 2 for both x and y coordinate
 			upper_bound = [self.params.beta] * (num_nodes * 2)
 		else:
@@ -320,7 +355,7 @@ class Spatial_Division_solver(SpaLin_solver):
 		nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
 		sigma_lower,sigma_upper = self.bound_sigma()
 		sep_force_lower, sep_force_upper = self.bound_sep_force()
-		beta_lower, beta_upper = (0,10)
+		beta_lower, beta_upper = (0,100)
 
 		if self.params.optimize_beta == False:
 			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
