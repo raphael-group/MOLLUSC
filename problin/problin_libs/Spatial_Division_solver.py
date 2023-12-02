@@ -14,24 +14,21 @@ from scipy.stats import norm
 
 
 class Spatial_Division_solver(SpaLin_solver):
-	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'beta': 0, 'displacement_amounts': {} }):
+	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'lower_beta': 0, 'upper_beta': 0, 'displacement_amounts': {} }):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 
 		self.given_beta = True
-		self.params.beta = params['beta']
+		self.params.lower_beta = params['lower_beta']
+		self.params.upper_beta = params['upper_beta']
 		self.params.optimize_beta = False
-		if self.params.beta == None:
+		if self.params.upper_beta == None:
 			# ignore the nonlinear constraint
 			self.params.optimize_beta = True
 			print("optimizing beta")
 			self.given_beta = False
-			self.params.beta = 100
 		self.leaf_locations = data['locations']
 		self.params.sigma = params['sigma']
 		self.params.incl_beta_bound = params['incl_beta_bound']
-
-		if self.params.incl_beta_bound == False:
-			self.params.optimize_beta == False
 
 		self.params.displacement_amounts = params['displacement_amounts']
 
@@ -42,7 +39,7 @@ class Spatial_Division_solver(SpaLin_solver):
 					self.num_internal += 1
 
 	def get_params(self):
-		return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations, 'incl_beta_bound': self.params.incl_beta_bound, 'beta': self.params.beta, 'displacement_amounts': self.params.displacement_amounts}
+		return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations, 'incl_beta_bound': self.params.incl_beta_bound, 'lower_beta': self.params.lower_beta, 'upper_beta': self.params.upper_beta, 'displacement_amounts': self.params.displacement_amounts}
 
 	def llh_of_separation_force(self, locations, displacement_amounts):
 		llh = 0
@@ -123,7 +120,6 @@ class Spatial_Division_solver(SpaLin_solver):
 
 	def __llh__(self):
 		return self.lineage_llh() + self.llh_of_separation_force(self.leaf_locations, self.params.displacement_amounts)
-		return final_llh
 
 	def ini_sep(self,fixed_seps = None):
 		if fixed_seps is not None:
@@ -131,8 +127,8 @@ class Spatial_Division_solver(SpaLin_solver):
 		else:
 			forces = []     
 			idx = 0
-			if self.params.beta != None:
-				sep_force = self.params.beta / sqrt(2)
+			if self.params.upper_beta != None:
+				sep_force = self.params.upper_beta / sqrt(2)
 			else:
 				sep_force = 1 / sqrt(2)
 			for tree in self.trees:
@@ -158,10 +154,7 @@ class Spatial_Division_solver(SpaLin_solver):
 		x0_sigma = 22 # hard code for now     
 		x0_sep_forces = self.ini_sep()
 
-		if self.params.optimize_beta == False:
-			ini_params = (['brlens','nu','phi','sep_forces','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'sigma':[x0_sigma]})
-		else:
-			ini_params = (['brlens','nu','phi','sep_forces','beta', 'sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'beta': [1], 'sigma':[x0_sigma]})
+		ini_params = (['brlens','nu','phi','sep_forces','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'sigma':[x0_sigma]})
 		return ini_params 
 
 	def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,optimize_brlens=True,verbose=1,ultra_constr=False):
@@ -294,7 +287,7 @@ class Spatial_Division_solver(SpaLin_solver):
 									curr_internal += 4
 						return array_of_sums
 
-					constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.params.beta**2 * 0.9] * self.num_internal * 2, [self.params.beta**2 * 1.1] * self.num_internal * 2))
+					constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.params.lower_beta**2] * self.num_internal * 2, [self.params.upper_beta**2] * self.num_internal * 2))
 
 		disp = (verbose > 0)
 		out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
@@ -317,8 +310,6 @@ class Spatial_Division_solver(SpaLin_solver):
 		self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
 		i = self.num_edges + 2
 		self.x2displacement(x,i)
-		if self.params.optimize_beta == True:
-			self.params.beta = x[-2]
 		self.params.sigma = x[-1] 
 
 	def x2displacement(self,x,idx):
@@ -342,8 +333,8 @@ class Spatial_Division_solver(SpaLin_solver):
 				if node.is_leaf() == False:
 					num_nodes += 2
 		if self.params.incl_beta_bound == True and (self.given_beta == True):
-			lower_bound = [-self.params.beta] * (num_nodes * 2) # times 2 for both x and y coordinate
-			upper_bound = [self.params.beta] * (num_nodes * 2)
+			lower_bound = [-self.params.lower_beta] * (num_nodes * 2) # times 2 for both x and y coordinate
+			upper_bound = [self.params.upper_beta] * (num_nodes * 2)
 		else:
 			lower_bound = [-100] * (num_nodes * 2) # times 2 for both x and y coordinate
 			upper_bound = [100] * (num_nodes * 2)			
@@ -361,8 +352,8 @@ class Spatial_Division_solver(SpaLin_solver):
 			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
 			combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper +[sigma_upper]
 		else:
-			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [beta_lower] + [sigma_lower]
-			combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper + [beta_upper] + [sigma_upper]
+			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
+			combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper + [sigma_upper]
 
 		bounds = optimize.Bounds(combined_lower,combined_upper,keep_feasible=keep_feasible)
 		return bounds   
