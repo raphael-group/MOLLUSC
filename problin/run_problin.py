@@ -48,9 +48,7 @@ def main():
     parser.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of topology search.")
 
     parser.add_argument("--divide", required=False,action='store_true', help="Model division of cells")
-    parser.add_argument("--given_lower_beta", type=float, required=False,default=None,help="Fixed beta, otherwise will estimate")
-    parser.add_argument("--given_upper_beta", type=float, required=False,default=None,help="Fixed beta, otherwise will estimate")
-    parser.add_argument("--incl_beta_bound", action='store_true',required=False,default=False,help="Use the nonlinear constraint (and use beta when bounding the displacement amounts)")
+    parser.add_argument("--radius", required=False,default=5,type=float,help="")
 
 
     if len(argv) == 1:
@@ -136,9 +134,8 @@ def main():
     prior = {'Q':[Q]} 
     
 
-    params = {'sigma':22,'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'lower_beta': args['given_lower_beta'], 'upper_beta': args['given_upper_beta'], 'incl_beta_bound': args['incl_beta_bound'],  'displacement_amounts': {}}  
+    params = {'sigma':22,'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'radius': args['radius'],  'thetas': {}}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
-    print(params)
 
     myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)
 
@@ -212,9 +209,11 @@ def main():
             #     fout.write("All cell locations were given as input.")  
 
             if args["divide"] == True:
-                for cell in mySolver.params.displacement_amounts:
-                    displace = mySolver.params.displacement_amounts[cell]
-                    fout.write(cell + " displacement amount" +  " " + str(displace) + "\n")
+                fout.write("Radius" + str(args["radius"]) + '\n')
+                fout.write("Thetas \n")
+                for cell in mySolver.params.thetas:
+                    theta = mySolver.params.thetas[cell]
+                    fout.write(str(cell) + " " +  str(theta) + "\n")
 
 
     stop_time = timeit.default_timer()

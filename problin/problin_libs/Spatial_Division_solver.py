@@ -14,23 +14,14 @@ from scipy.stats import norm
 
 
 class Spatial_Division_solver(SpaLin_solver):
-	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'lower_beta': 0, 'upper_beta': 0, 'displacement_amounts': {} }):
+	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'radius': 0, 'thetas': {} }):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 
-		self.given_beta = True
-		self.params.lower_beta = params['lower_beta']
-		self.params.upper_beta = params['upper_beta']
-		self.params.optimize_beta = False
-		if self.params.upper_beta == None:
-			# ignore the nonlinear constraint
-			self.params.optimize_beta = True
-			print("optimizing beta")
-			self.given_beta = False
+		self.radius = params['radius']
 		self.leaf_locations = data['locations']
 		self.params.sigma = params['sigma']
-		self.params.incl_beta_bound = params['incl_beta_bound']
 
-		self.params.displacement_amounts = params['displacement_amounts']
+		self.params.thetas= params['thetas']
 
 		self.num_internal = 0
 		for tree in self.trees:
@@ -39,11 +30,10 @@ class Spatial_Division_solver(SpaLin_solver):
 					self.num_internal += 1
 
 	def get_params(self):
-		return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations, 'incl_beta_bound': self.params.incl_beta_bound, 'lower_beta': self.params.lower_beta, 'upper_beta': self.params.upper_beta, 'displacement_amounts': self.params.displacement_amounts}
+		return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations, 'radius': self.radius, 'thetas': self.params.thetas}
 
-	def llh_of_separation_force(self, locations, displacement_amounts):
+	def llh_of_separation_force(self, locations, thetas):
 		llh = 0
-		mutation_rate = 0.006
 		sigma = self.params.sigma
 
 		for i in [0,1]: # do this for the x and y coordinates
@@ -60,11 +50,22 @@ class Spatial_Division_solver(SpaLin_solver):
 				# compute initial expected values for all the leaf nodes
 				for node in tree.traverse_leaves():
 					sum_of_displacement = 0
+					prev_node_label = node.label
 					for node_p in node.traverse_ancestors():
-						if (node_p.label == 'virtual') or (node_p.is_root()):
-							pass
-						else:
-							sum_of_displacement += displacement_amounts[node_p.label][i]
+						if node_p.label == node.label: # will always start with current node
+							continue
+						left_child = node_p.child_nodes()[0]
+
+						multiplier = -1
+						if left_child.label == prev_node_label: # was a left child, do addition
+							multiplier = 1
+
+						if i == 0: # doing x coordinate
+							sum_of_displacement += multiplier * self.radius * math.cos(thetas[node_p.label])
+						if i == 1: # doing y coordinate
+							sum_of_displacement += multiplier * self.radius * math.sin(thetas[node_p.label])
+						prev_node_label = node_p.label
+
 					stored_means_nodes_in_tree[node.label] = sum_of_displacement
 
 		
@@ -119,32 +120,17 @@ class Spatial_Division_solver(SpaLin_solver):
 		return llh
 
 	def __llh__(self):
-		return self.lineage_llh() + self.llh_of_separation_force(self.leaf_locations, self.params.displacement_amounts)
+		return self.lineage_llh() + self.llh_of_separation_force(self.leaf_locations, self.params.thetas)
 
-	def ini_sep(self,fixed_seps = None):
-		if fixed_seps is not None:
-			return fixed_seps
-		else:
-			forces = []     
-			idx = 0
-			if self.params.upper_beta != None:
-				sep_force = self.params.upper_beta / sqrt(2)
-			else:
-				sep_force = 1 / sqrt(2)
-			for tree in self.trees:
-				for node in tree.traverse_postorder():
-					if node.num_children() == 2:
-					# initialize as symmetric
-
-						# coordinate displacements for left child
-						forces.append(sep_force) # x coor
-						forces.append(sep_force) # y coor
-
-						# coordinate displacements for right child
-						forces.append(-sep_force) # x coor
-						forces.append(-sep_force) # y coor
-
-			return forces
+	def ini_thetas(self):
+		thetas = []     
+		idx = 0
+		for tree in self.trees:
+			for node in tree.traverse_postorder():
+				if node.num_children() == 2:
+					rand_theta = np.random.uniform(0, 2*pi)
+					thetas.append(rand_theta) # x coor
+		return thetas
 
 
 	def ini_all(self,fixed_phi=None,fixed_nu=None):
@@ -152,9 +138,9 @@ class Spatial_Division_solver(SpaLin_solver):
 		x0_nu = self.ini_nu(fixed_nu=fixed_nu)
 		x0_phi = self.ini_phi(fixed_phi=fixed_phi)
 		x0_sigma = 22 # hard code for now     
-		x0_sep_forces = self.ini_sep()
+		x0_thetas = self.ini_thetas()
 
-		ini_params = (['brlens','nu','phi','sep_forces','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'sep_forces': x0_sep_forces,'sigma':[x0_sigma]})
+		ini_params = (['brlens','nu','phi','thetas','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'thetas': x0_thetas,'sigma':[x0_sigma]})
 		return ini_params 
 
 	def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,optimize_brlens=True,verbose=1,ultra_constr=False):
@@ -204,96 +190,10 @@ class Spatial_Division_solver(SpaLin_solver):
 				# ultametric_constraint_matrix[:M.shape[0], M.shape[1]] = M
 				constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
 
-			# create the constraints for the separation amount parameters
-			# find the index where the values start
-			index_of_displacement_start = self.num_edges + 2
-
-			# x,y displacements of sister nodes are symmetric
-			curr_internal = 0
-			symmetric_x_constraint_matrix = []
-			for tree in self.trees:
-				for node in tree.traverse_postorder():
-					if node.num_children() == 2:
-						a = [0] * len(x0)
-						a[index_of_displacement_start + curr_internal] = 1
-						a[index_of_displacement_start + curr_internal+2] = 1
-						symmetric_x_constraint_matrix.append(a)
-						curr_internal += 4
-			constraints.append(optimize.LinearConstraint(csr_matrix(symmetric_x_constraint_matrix),[0]*len(symmetric_x_constraint_matrix),[0]*len(symmetric_x_constraint_matrix),keep_feasible=False))
-
-			curr_internal = 0
-			symmetric_y_constraint_matrix = []
-			for tree in self.trees:
-				for node in tree.traverse_postorder():
-					if node.num_children() == 2:
-						a = [0] * len(x0)
-						a[index_of_displacement_start + curr_internal+1] = 1
-						a[index_of_displacement_start + curr_internal+3] = 1
-						symmetric_y_constraint_matrix.append(a)
-						curr_internal += 4
-			constraints.append(optimize.LinearConstraint(csr_matrix(symmetric_y_constraint_matrix),[0]*len(symmetric_y_constraint_matrix),[0]*len(symmetric_y_constraint_matrix),keep_feasible=False))
-
-			# sum of squares of x,y displacements are equal to a constant
-			if self.params.incl_beta_bound == True:
-				if self.params.optimize_beta == True:
-
-					def diff_of_sum_of_squares(x):
-						# return difference of x_displace**2 + y_displace**2 between all internal nodes
-						curr_internal = 0
-						sum_of_xy_displacements = []
-						for tree in self.trees:
-							for node in tree.traverse_postorder():
-								if node.num_children() == 2:
-									x_squared = x[index_of_displacement_start + curr_internal]**2
-									y_squared = x[index_of_displacement_start + curr_internal+1]**2
-
-									sum_of_xy_displacements += [x_squared + y_squared]
-									curr_internal += 2
-
-									x_squared = x[index_of_displacement_start + curr_internal]**2
-									y_squared = x[index_of_displacement_start + curr_internal+1]**2
-
-									sum_of_xy_displacements += [x_squared + y_squared]
-									curr_internal += 2
-
-						sum_of_differences = []
-						for index_i in range(len(sum_of_xy_displacements)):
-							for index_j in range(len(sum_of_xy_displacements)):
-								if index_i != index_j:
-									sum_of_differences += [sum_of_xy_displacements[index_i] - sum_of_xy_displacements[index_j]]
-						return sum_of_differences
-
-					num_constraints = (self.num_internal*2)**2 - (self.num_internal*2)
-					constraints.append(optimize.NonlinearConstraint(diff_of_sum_of_squares, [-0.1] * num_constraints, [0.1] * num_constraints))
-
-
-				if self.params.optimize_beta == False:
-					def sum_of_squares(x):
-						# return x^2 + y^2 for all internal nodes
-						curr_internal = 0
-						array_of_sums = []
-						for tree in self.trees:
-							for node in tree.traverse_postorder():
-								if node.num_children() == 2:
-									x_squared = x[index_of_displacement_start + curr_internal]**2
-									y_squared = x[index_of_displacement_start + curr_internal+1]**2
-									sum1 = x_squared + y_squared
-									array_of_sums.append(sum1)
-
-									x_squared = x[index_of_displacement_start + curr_internal+2]**2
-									y_squared = x[index_of_displacement_start + curr_internal+3]**2
-									sum2 = x_squared + y_squared
-									array_of_sums.append(sum2)
-									curr_internal += 4
-						return array_of_sums
-
-					constraints.append(optimize.NonlinearConstraint(sum_of_squares, [self.params.lower_beta**2] * self.num_internal * 2, [self.params.upper_beta**2] * self.num_internal * 2))
-
 		disp = (verbose > 0)
 		out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
 
 		if out.success:
-
 			self.x2params(out.x,fixed_phi=fixed_phi,fixed_nu=fixed_nu,include_brlens=optimize_brlens)
 			params = self.params
 			f = out.fun
@@ -309,57 +209,31 @@ class Spatial_Division_solver(SpaLin_solver):
 		self.x2nu(x,fixed_nu=fixed_nu,include_brlens=include_brlens)
 		self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
 		i = self.num_edges + 2
-		self.x2displacement(x,i)
+		self.x2thetas(x,i)
 		self.params.sigma = x[-1] 
 
-	def x2displacement(self,x,idx):
-		x_displacement_amounts = x[idx:-1]
+	def x2thetas(self,x,idx):
+		thetas = x[idx:-1]
 		i = 0
 		for tree in self.trees:
 			for node in tree.traverse_postorder():
 				if node.num_children() == 2:
-				# initialize as symmetric
-					children = node.child_nodes()
-					self.params.displacement_amounts[children[0].label] = (x_displacement_amounts[i],x_displacement_amounts[i+1])
-					self.params.displacement_amounts[children[1].label] = (x_displacement_amounts[i+2],x_displacement_amounts[i+3])
+					self.params.thetas[node.label] = thetas[i]
+					i += 1
 
-					i += 4
-
-	def bound_sep_force(self):
-		num_nodes = 0
-		for tree in self.trees:
-			for node in tree.traverse_postorder():
-				# number of separation forces equal to the 
-				if node.is_leaf() == False:
-					num_nodes += 2
-		if self.params.incl_beta_bound == True and (self.given_beta == True):
-			lower_bound = [-self.params.lower_beta] * (num_nodes * 2) # times 2 for both x and y coordinate
-			upper_bound = [self.params.upper_beta] * (num_nodes * 2)
-		else:
-			lower_bound = [-100] * (num_nodes * 2) # times 2 for both x and y coordinate
-			upper_bound = [100] * (num_nodes * 2)			
-		return lower_bound, upper_bound
+	def bound_thetas(self):
+		num_nodes = 0		
+		return [-np.inf]*self.num_internal,[np.inf]*self.num_internal
 
 	def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None,include_brlens=True):
 		br_lower,br_upper = self.bound_brlen() if include_brlens else ([],[])
 		phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
 		nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
 		sigma_lower,sigma_upper = self.bound_sigma()
-		sep_force_lower, sep_force_upper = self.bound_sep_force()
-		beta_lower, beta_upper = (0,100)
+		theta_lower, theta_upper = self.bound_thetas()
 
-		if self.params.optimize_beta == False:
-			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
-			combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper +[sigma_upper]
-		else:
-			combined_lower = br_lower+[nu_lower,phi_lower]+sep_force_lower + [sigma_lower]
-			combined_upper = br_upper+[nu_upper,phi_upper]+sep_force_upper + [sigma_upper]
+		combined_lower = br_lower+[nu_lower,phi_lower]+theta_lower+[sigma_lower]
+		combined_upper = br_upper+[nu_upper,phi_upper]+theta_upper+[sigma_upper]
 
 		bounds = optimize.Bounds(combined_lower,combined_upper,keep_feasible=keep_feasible)
 		return bounds   
-
-			   
-
-
-
-

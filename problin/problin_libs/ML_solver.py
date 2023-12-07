@@ -174,11 +174,11 @@ class ML_solver(Virtual_solver):
     def ini_brlens(self):
         x = [random() * (self.dmax/2 - 2*self.dmin) + 2*self.dmin for i in range(self.num_edges)]        
         idx = 0
-        for tree in self.trees:
-            for node in tree.traverse_postorder():
-                if node.edge_length is not None:
-                    x[idx] = node.edge_length
-                idx += 1     
+        # for tree in self.trees:
+        #     for node in tree.traverse_postorder():
+        #         if node.edge_length is not None:
+        #             x[idx] = max(2*self.dmin,node.edge_length)
+        #         idx += 1     
         return x    
 
     def ini_nu(self,fixed_nu=None):
