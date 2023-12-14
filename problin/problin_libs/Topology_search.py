@@ -75,50 +75,53 @@ class Topology_search:
         best_score = -float("inf")
         best_params = None
         for i in range(nreps):
+            try:
             # resolve polytomies
-            if verbose:
-                print("Performing nni-search " + str(i+1))
-            self.treeTopoList = original_topos
-            self.params = original_params
-            self.__renew_treeList_obj__()
-            self.__mark_polytomies__()
-            if strategy['resolve_search_only']:
                 if verbose:
-                    print("Only perform local nni moves to resolve polytomies")
-                if self.has_polytomy:
-                    trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True,checkpoint_file=checkpoint_file)
-                else: # score this tree topology (optimize all numerical params)
-                    mySolver = self.get_solver()
-                    score_tree_strategy = deepcopy(strategy)
-                    score_tree_strategy['fixed_brlen'] = {}
-                    score,status = mySolver.score_tree(strategy=score_tree_strategy)
-                    self.update_from_solver(mySolver)
-                    trees = self.treeTopoList
-                    params = self.params
-            else:    
+                    print("Performing nni-search " + str(i+1))
+                self.treeTopoList = original_topos
+                self.params = original_params
+                self.__renew_treeList_obj__()
+                self.__mark_polytomies__()
+                if strategy['resolve_search_only']:
+                    if verbose:
+                        print("Only perform local nni moves to resolve polytomies")
+                    if self.has_polytomy:
+                        trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=True,checkpoint_file=checkpoint_file)
+                    else: # score this tree topology (optimize all numerical params)
+                        mySolver = self.get_solver()
+                        score_tree_strategy = deepcopy(strategy)
+                        score_tree_strategy['fixed_brlen'] = {}
+                        score,status = mySolver.score_tree(strategy=score_tree_strategy)
+                        self.update_from_solver(mySolver)
+                        trees = self.treeTopoList
+                        params = self.params
+                else:    
+                    if verbose:
+                        print("Perform nni moves for full topology search")
+                    trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
+                # The final optimization of parameters
                 if verbose:
-                    print("Perform nni moves for full topology search")
-                trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
-            # The final optimization of parameters
-            if verbose:
-                print("Optimal topology found. Re-optimizing other parameters ...")
-            self.treeTopoList = trees
-            self.params = params
-            self.__renew_treeList_obj__()
-            mySolver = self.get_solver()
-            score_tree_strategy = deepcopy(strategy)
-            score_tree_strategy['fixed_brlen'] = {}
-            score,status = mySolver.score_tree(strategy=score_tree_strategy)
-            self.update_from_solver(mySolver)
-            trees = self.treeTopoList
-            params = self.params
-            if verbose:
-                print("Optimal score for this search: " + str(score))
-            # compare to the best_score of previous searches
-            if score > best_score:
-                best_score = score
-                best_trees = trees    
-                best_params = params
+                    print("Optimal topology found. Re-optimizing other parameters ...")
+                self.treeTopoList = trees
+                self.params = params
+                self.__renew_treeList_obj__()
+                mySolver = self.get_solver()
+                score_tree_strategy = deepcopy(strategy)
+                score_tree_strategy['fixed_brlen'] = {}
+                score,status = mySolver.score_tree(strategy=score_tree_strategy)
+                self.update_from_solver(mySolver)
+                trees = self.treeTopoList
+                params = self.params
+                if verbose:
+                    print("Optimal score for this search: " + str(score))
+                # compare to the best_score of previous searches
+                if score > best_score:
+                    best_score = score
+                    best_trees = trees    
+                    best_params = params
+            except FileNotFoundError as e:
+                print(e)
 
         # synchronization        
         self.treeTopoList = best_trees
