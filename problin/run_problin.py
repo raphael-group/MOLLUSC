@@ -34,6 +34,7 @@ def main():
     parser.add_argument("--resolve_search",action='store_true', required=False,help="Resolve polytomies by performing topology search ONLY on branches with polytomies. This option has higher priority than --topoloy_search.")
     parser.add_argument("-L","--compute_llh",required=False,help="Compute likelihood of the input tree using the input (phi,nu). Will NOT optimize branch lengths, phi, or nu. The input tree MUST have branch lengths. This option has higher priority than --topoloy_search and --resolve_search.")
     parser.add_argument("-S","--spatial",required=False,help="Spatial locations of a subset of cells.")
+    parser.add_argument("--spatial_only", required=False,action='store_true',default=False,help="Ignore the sequence information and only use spatial information")
     # problem formulation
     parser.add_argument("--ultrametric",action='store_true',help="Enforce ultrametricity to the output tree.")
     parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
@@ -48,7 +49,8 @@ def main():
     parser.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of topology search.")
 
     parser.add_argument("--divide", required=False,action='store_true', help="Model division of cells")
-    parser.add_argument("--radius", required=False,default=5,type=float,help="")
+    parser.add_argument("--radius", required=False,default=5,type=float,help="Fixed displacement of cell division")
+    parser.add_argument("--given_sigma", required=False, default = None,type=float,help="Fix Dispersal Parameter")
 
 
     if len(argv) == 1:
@@ -134,7 +136,7 @@ def main():
     prior = {'Q':[Q]} 
     
 
-    params = {'sigma':22,'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'radius': args['radius'],  'thetas': {}}  
+    params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'radius': args['radius'],  'thetas': {}, 'spatialOnly': args["spatial_only"], "sigma": args['given_sigma']}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
     myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)

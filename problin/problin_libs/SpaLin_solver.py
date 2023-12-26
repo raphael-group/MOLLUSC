@@ -15,7 +15,22 @@ class SpaLin_solver(ML_solver):
     def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
         super(SpaLin_solver,self).__init__(treeTopo,data,prior,params)
         self.leaf_locations = data['locations']
-        self.params.sigma = params['sigma']
+
+        self.optimize_sigma = True
+        if params['sigma'] == None:
+            self.params.sigma = 10 # just some default
+        else:
+            self.params.sigma = params['sigma']
+            self.optimize_sigma = False
+
+        self.onlyspatial = False
+        try:
+            self.onlyspatial = params["spatialOnly"]
+            if self.onlyspatial:
+                print("only spatial")
+        except:
+            pass
+
     
     def get_params(self):
         return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations}
@@ -43,13 +58,10 @@ class SpaLin_solver(ML_solver):
         # number of characters p
         # times of the tip populations (calculated from branch lengths) t_i
         # ancestors for each node
-        mutation_rate = 0.006 # hardcoding this because i'm lazy
-
         llh = 0
         for one_tree in self.trees:
             tree = deepcopy(one_tree)
-            # need to correct the brlens with the mutation rate param as well as multiply by variance
-            #tree.scale_edges(1/mutation_rate)
+
             tree.scale_edges(self.params.sigma**2)
 
 
@@ -121,8 +133,10 @@ class SpaLin_solver(ML_solver):
         return llh 
 
     def __llh__(self):
-        return self.lineage_llh() + self.spatial_llh_marginalized(self.leaf_locations)
-        return final_llh
+        if self.onlyspatial:
+            return self.spatial_llh_marginalized(self.leaf_locations)
+        else:
+            return self.lineage_llh() + self.spatial_llh_marginalized(self.leaf_locations)
 
     def optimize_brlen(self,x0,fixed_phi=None,fixed_nu=None,verbose=1,ultra_constr=False):
         # optimize branch lengths, phi, and nu using a specific initial point identified by the input randseed
@@ -187,7 +201,10 @@ class SpaLin_solver(ML_solver):
         self.x2nu(x,fixed_nu=fixed_nu,include_brlens=include_brlens)
         self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
         i = self.num_edges + 2
-        self.params.sigma = x[-1]        
+
+        if self.optimize_sigma:
+            self.params.sigma = x[-1]  
+   
                
     def bound_sigma(self):
         return (eps,np.inf)    

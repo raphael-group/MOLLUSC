@@ -14,14 +14,27 @@ from scipy.stats import norm
 
 
 class Spatial_Division_solver(SpaLin_solver):
-	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'radius': 0, 'thetas': {} }):
+	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'radius': 0, 'thetas': {}}):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 
 		self.radius = params['radius']
 		self.leaf_locations = data['locations']
-		self.params.sigma = params['sigma']
+		self.optimize_sigma = True
+		if params['sigma'] == None:
+			self.params.sigma = 10 # just some default
+		else:
+			self.params.sigma = params['sigma']
+			self.optimize_sigma = False
 
 		self.params.thetas= params['thetas']
+
+		self.onlyspatial = False
+		try:
+			self.onlyspatial = params["spatialOnly"]
+			if self.onlyspatial:
+				print("only spatial")
+		except:
+			pass
 
 		self.num_internal = 0
 		for tree in self.trees:
@@ -120,7 +133,10 @@ class Spatial_Division_solver(SpaLin_solver):
 		return llh
 
 	def __llh__(self):
-		return self.lineage_llh() + self.llh_of_separation_force(self.leaf_locations, self.params.thetas)
+		if self.onlyspatial:
+			return self.llh_of_separation_force(self.leaf_locations, self.params.thetas)
+		else:
+			return self.lineage_llh() + self.llh_of_separation_force(self.leaf_locations, self.params.thetas)
 
 	def ini_thetas(self):
 		thetas = []     
@@ -210,7 +226,9 @@ class Spatial_Division_solver(SpaLin_solver):
 		self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
 		i = self.num_edges + 2
 		self.x2thetas(x,i)
-		self.params.sigma = x[-1] 
+
+		if self.optimize_sigma:
+			self.params.sigma = x[-1]   
 
 	def x2thetas(self,x,idx):
 		thetas = x[idx:-1]
