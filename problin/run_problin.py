@@ -136,7 +136,7 @@ def main():
     prior = {'Q':[Q]} 
     
 
-    params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'radius': args['radius'],  'thetas': {}, 'spatialOnly': args["spatial_only"], "sigma": args['given_sigma']}  
+    params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'radius': args['radius'],  'thetas': {}, 'spatialOnly': args["spatial_only"], "sigma": args['given_sigma'], 'lambda_param': 1}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
     myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)

@@ -16,7 +16,7 @@ class Params:
         self.phi = phi
 
 class ML_solver(Virtual_solver):
-    def __init__(self,treeList,data,prior,params={'nu':eps,'phi':eps}):
+    def __init__(self,treeList,data,prior,params={'nu':eps,'phi':eps,'lambda_param': 1}):
         charMatrices = data['charMatrices']
         Q = prior['Q']
         nu = params['nu']
@@ -24,6 +24,12 @@ class ML_solver(Virtual_solver):
         self.charMatrices = charMatrices
         self.trees = []
         self.num_edges = 0
+        try:
+            self.lambda_param = params['lambda_param']
+        except:
+            # since we make a mySolver again.
+            pass
+
         for tree in treeList:
             tree_obj = read_tree_newick(tree)
             tree_obj.suppress_unifurcations()
@@ -135,7 +141,8 @@ class ML_solver(Virtual_solver):
         nu = self.params.nu
         sum_llh = 0
         for i in range(len(self.trees)):
-            tree = self.trees[i]
+            tree = deepcopy(self.trees[i])
+            tree.scale_edges(self.lambda_param)
             Q = self.Q[i]
             numsites = self.numsites[i]
             llh = [0]*numsites
@@ -191,7 +198,8 @@ class ML_solver(Virtual_solver):
         x0_brlens = self.ini_brlens()
         x0_nu = self.ini_nu(fixed_nu=fixed_nu)
         x0_phi = self.ini_phi(fixed_phi=fixed_phi)
-        ini_params = (['brlens','nu','phi'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi]})
+        x0_lambda = 1
+        ini_params = (['brlens','nu','phi', 'lambda_param'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'lambda_param': [x0_lambda]})
         #return self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
         return ini_params
 
@@ -202,13 +210,14 @@ class ML_solver(Virtual_solver):
         return (eps,0.99) if fixed_phi is None else (fixed_phi-eps,fixed_phi+eps)
 
     def bound_brlen(self):        
-        return [self.dmin]*self.num_edges,[self.dmax]*self.num_edges
+        return [1] * self.num_edges, [215] * self.num_edges
         
     def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None,include_brlens=True):
         br_lower,br_upper = self.bound_brlen() if include_brlens else ([],[])
         phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
         nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
-        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower],br_upper+[nu_upper,phi_upper],keep_feasible=keep_feasible)
+        lambda_lower, lambda_upper = (0,100000)
+        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower, lambda_lower],br_upper+[nu_upper,phi_upper, lambda_upper],keep_feasible=keep_feasible)
         return bounds
 
     def x2brlen(self,x):
@@ -231,6 +240,11 @@ class ML_solver(Virtual_solver):
             self.x2brlen(x)
         self.x2nu(x,fixed_nu=fixed_nu,include_brlens=include_brlens)
         self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
+        self.x2lambda(x)
+
+    def x2lambda(self,x):
+        lambda_index = self.num_edges + 2
+        self.lambda_param = x[lambda_index]
 
     def __llh__(self):
         return self.lineage_llh()
@@ -361,6 +375,10 @@ class ML_solver(Virtual_solver):
             if ultra_constr:
                 M = self.ultrametric_constr()
                 constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
+
+            # add branch length sum constraint:
+            sum_constraint = [1] * self.num_edges + [0] * (len(x0) - self.num_edges)
+            constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraint),215,215,keep_feasible=False))
 
         disp = (verbose > 0)
 

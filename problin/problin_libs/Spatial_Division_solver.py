@@ -14,12 +14,19 @@ from scipy.stats import norm
 
 
 class Spatial_Division_solver(SpaLin_solver):
-	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'radius': 0, 'thetas': {}}):
+	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'lambda': 1, 'radius': 0,'thetas': {}}):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 
 		self.radius = params['radius']
 		self.leaf_locations = data['locations']
 		self.optimize_sigma = True
+
+		try:
+			self.lambda_param = params['lambda_param']
+		except:
+			# since we make a mySolver again.
+			pass
+
 		if params['sigma'] == None:
 			self.params.sigma = 10 # just some default
 		else:
@@ -53,7 +60,6 @@ class Spatial_Division_solver(SpaLin_solver):
 			for one_tree in self.trees:
 				this_tree_locations = deepcopy(locations)
 				tree = deepcopy(one_tree)
-				#tree.scale_edges(1/mutation_rate)
 				tree.scale_edges(sigma**2)
 
 
@@ -156,7 +162,7 @@ class Spatial_Division_solver(SpaLin_solver):
 		x0_sigma = 22 # hard code for now     
 		x0_thetas = self.ini_thetas()
 
-		ini_params = (['brlens','nu','phi','thetas','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'thetas': x0_thetas,'sigma':[x0_sigma]})
+		ini_params = (['brlens','nu','phi','lambda_param','thetas','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'thetas': x0_thetas,'lambda_param': [1], 'sigma':[x0_sigma]})
 		return ini_params 
 
 	def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,optimize_brlens=True,verbose=1,ultra_constr=False):
@@ -205,6 +211,8 @@ class Spatial_Division_solver(SpaLin_solver):
 				# ultametric_constraint_matrix = np.zeros((param_length, param_length))
 				# ultametric_constraint_matrix[:M.shape[0], M.shape[1]] = M
 				constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
+			sum_constraint = [1] * self.num_edges + [0] * (len(x0) - self.num_edges)
+			constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraint),215,215,keep_feasible=False))
 
 		disp = (verbose > 0)
 		out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
@@ -224,13 +232,14 @@ class Spatial_Division_solver(SpaLin_solver):
 			self.x2brlen(x)
 		self.x2nu(x,fixed_nu=fixed_nu,include_brlens=include_brlens)
 		self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
-		i = self.num_edges + 2
-		self.x2thetas(x,i)
+		self.x2lambda(x)
+		self.x2thetas(x)
 
 		if self.optimize_sigma:
 			self.params.sigma = x[-1]   
 
-	def x2thetas(self,x,idx):
+	def x2thetas(self,x):
+		idx = self.num_edges + 3
 		thetas = x[idx:-1]
 		i = 0
 		for tree in self.trees:
@@ -249,9 +258,10 @@ class Spatial_Division_solver(SpaLin_solver):
 		nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
 		sigma_lower,sigma_upper = self.bound_sigma()
 		theta_lower, theta_upper = self.bound_thetas()
+		lambda_lower, lambda_upper = (0,100000)
 
-		combined_lower = br_lower+[nu_lower,phi_lower]+theta_lower+[sigma_lower]
-		combined_upper = br_upper+[nu_upper,phi_upper]+theta_upper+[sigma_upper]
+		combined_lower = br_lower+[nu_lower,phi_lower,lambda_lower]+theta_lower+[sigma_lower]
+		combined_upper = br_upper+[nu_upper,phi_upper,lambda_upper]+theta_upper+[sigma_upper]
 
 		bounds = optimize.Bounds(combined_lower,combined_upper,keep_feasible=keep_feasible)
 		return bounds   

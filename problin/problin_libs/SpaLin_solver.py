@@ -12,11 +12,19 @@ from copy import deepcopy
 
 
 class SpaLin_solver(ML_solver):
-    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0}):
+    def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'lambda_param':1}):
         super(SpaLin_solver,self).__init__(treeTopo,data,prior,params)
         self.leaf_locations = data['locations']
 
         self.optimize_sigma = True
+
+
+        try:
+            self.lambda_param = params['lambda_param']
+        except:
+            # since we make a mySolver again.
+            pass
+
         if params['sigma'] == None:
             self.params.sigma = 10 # just some default
         else:
@@ -170,7 +178,7 @@ class SpaLin_solver(ML_solver):
         if len(A) > 0:     
             constraints.append(optimize.LinearConstraint(csr_matrix(A),b,b,keep_feasible=False))
         if ultra_constr:
-            M = self.ultrametric_constr(padding={'phi','nu'})
+            M = self.ultrametric_constr()
             constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
         disp = (verbose > 0)
         out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':1,'maxiter':1000}, bounds=bounds,constraints=constraints)
@@ -191,7 +199,7 @@ class SpaLin_solver(ML_solver):
         x0_phi = self.ini_phi(fixed_phi=fixed_phi)
         #x_lin = self.ini_brlens() + [self.ini_nu(fixed_nu=fixed_nu),self.ini_phi(fixed_phi=fixed_phi)]
         x0_sigma = 22 # hard code for now        
-        ini_params = (['brlens','nu','phi','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi],'sigma':[x0_sigma]})
+        ini_params = (['brlens','nu','phi','lambda_param', 'sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi],'lambda_param':[1], 'sigma':[x0_sigma]})
         #return x_lin, x_spa + [x_sigma]
         return ini_params 
     
@@ -200,8 +208,7 @@ class SpaLin_solver(ML_solver):
             self.x2brlen(x)
         self.x2nu(x,fixed_nu=fixed_nu,include_brlens=include_brlens)
         self.x2phi(x,fixed_phi=fixed_phi,include_brlens=include_brlens)
-        i = self.num_edges + 2
-
+        self.x2lambda(x)
         if self.optimize_sigma:
             self.params.sigma = x[-1]  
    
@@ -213,6 +220,7 @@ class SpaLin_solver(ML_solver):
         br_lower,br_upper = self.bound_brlen() if include_brlens else ([],[])
         phi_lower,phi_upper = self.bound_phi(fixed_phi=fixed_phi)
         nu_lower,nu_upper = self.bound_nu(fixed_nu=fixed_nu)
+        lambda_lower, lambda_upper = (0,100000)
         sigma_lower,sigma_upper = self.bound_sigma()
-        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower]+[sigma_lower],br_upper+[nu_upper,phi_upper]+[sigma_upper],keep_feasible=keep_feasible)
+        bounds = optimize.Bounds(br_lower+[nu_lower,phi_lower, lambda_lower]+[sigma_lower],br_upper+[nu_upper,phi_upper, lambda_upper]+[sigma_upper],keep_feasible=keep_feasible)
         return bounds   
