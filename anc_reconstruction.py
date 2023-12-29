@@ -234,7 +234,6 @@ num_internal = 0
 
 file_name = brlen_sigma_results
 current_tree = get_tree(file_name)
-current_tree.scale_edges(1/0.006)
 current_sigma = get_sigma(file_name)
 
 # only if we're using spalin-divide
