@@ -211,8 +211,17 @@ class Spatial_Division_solver(SpaLin_solver):
 				# ultametric_constraint_matrix = np.zeros((param_length, param_length))
 				# ultametric_constraint_matrix[:M.shape[0], M.shape[1]] = M
 				constraints.append(optimize.LinearConstraint(csr_matrix(M),[0]*len(M),[0]*len(M),keep_feasible=False))
-			sum_constraint = [1] * self.num_edges + [0] * (len(x0) - self.num_edges)
-			constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraint),215,215,keep_feasible=False))
+		sum_constraints = []
+		for tree in self.trees:
+			for node in tree.traverse_leaves():
+				one_constraint = [0]*len(x0)
+				for node_p in node.traverse_ancestors(): 
+					idx = self.node_label_to_index[node_p.label]
+					one_constraint[idx] = 1
+				sum_constraints.append(one_constraint)
+
+		constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraints),[214.99]*len(sum_constraints),[215.01]*len(sum_constraints),keep_feasible=False))
+
 
 		disp = (verbose > 0)
 		out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
