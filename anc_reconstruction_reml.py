@@ -63,15 +63,15 @@ def get_nllh(internal_locations):
 			if node.is_leaf():
 				x,y = leaf_location_dict[node.label]
 			else:
-				x = internal_locations_sigma[internal_mapping[node.label]]
-				y = internal_locations_sigma[internal_mapping[node.label] + 1]
+				x = internal_locations[internal_mapping[node.label]]
+				y = internal_locations[internal_mapping[node.label] + 1]
 
 			if node.is_root(): # maximum likelihood of the root location is the root location
 				llh += math.log(norm.pdf(x, loc=x, scale=sqrt(current_sigma**2 * node.edge_length)))
 				llh += math.log(norm.pdf(y, loc=y, scale=sqrt(current_sigma**2 * node.edge_length)))
 			else:
-				parent_x = internal_locations_sigma[internal_mapping[node.parent.label]]
-				parent_y = internal_locations_sigma[internal_mapping[node.parent.label] + 1]
+				parent_x = internal_locations[internal_mapping[node.parent.label]]
+				parent_y = internal_locations[internal_mapping[node.parent.label] + 1]
 
 				if displacement_dict != None:
 					parent_x += displacement_dict[node.label][0]
