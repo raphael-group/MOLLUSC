@@ -81,7 +81,7 @@ def get_nllh(internal_locations_sigma):
 
 				if displacement_dict != None:
 					parent_x += displacement_dict[node.label][0]
-					parent_y += displacement_dict[node.label][0]
+					parent_y += displacement_dict[node.label][1]
 
 				llh += math.log(norm.pdf(x, loc=parent_x, scale=sqrt(current_sigma**2 * node.edge_length)))
 				llh += math.log(norm.pdf(y, loc=parent_y, scale=sqrt(current_sigma**2 * node.edge_length)))
