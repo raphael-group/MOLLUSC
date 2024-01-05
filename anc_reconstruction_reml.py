@@ -42,7 +42,7 @@ def optimize_internal_locations():
 	success = False
 	best_result = []
 	best_nllh = np.inf
-	while (count < 10):
+	while (count < 30):
 		print("iteration",count)
 		x0 = initialize_internals(num_internal)
 		out = optimize.minimize(get_nllh, x0)
@@ -58,30 +58,31 @@ def optimize_internal_locations():
 
 def get_nllh(internal_locations):
 	llh = 0
+	try:
+		for node in current_tree.traverse_postorder():
+			if node.is_leaf():
+				x,y = leaf_location_dict[node.label]
+			else:
+				x = internal_locations_sigma[internal_mapping[node.label]]
+				y = internal_locations_sigma[internal_mapping[node.label] + 1]
 
-	for node in current_tree.traverse_postorder():
-		if node.is_leaf():
-			x,y = leaf_location_dict[node.label]
-		else:
-			x = internal_locations[internal_mapping[node.label]]
-			y = internal_locations[internal_mapping[node.label] + 1]
+			if node.is_root(): # maximum likelihood of the root location is the root location
+				llh += math.log(norm.pdf(x, loc=x, scale=sqrt(current_sigma**2 * node.edge_length)))
+				llh += math.log(norm.pdf(y, loc=y, scale=sqrt(current_sigma**2 * node.edge_length)))
+			else:
+				parent_x = internal_locations_sigma[internal_mapping[node.parent.label]]
+				parent_y = internal_locations_sigma[internal_mapping[node.parent.label] + 1]
 
-		if node.is_root(): # maximum likelihood of the root location is the root location
-			llh += math.log(norm.pdf(x, loc=x, scale=sqrt(current_sigma**2 * node.edge_length)))
-			llh += math.log(norm.pdf(y, loc=y, scale=sqrt(current_sigma**2 * node.edge_length)))
-		else:
-			parent_x = internal_locations[internal_mapping[node.parent.label]]
-			parent_y = internal_locations[internal_mapping[node.parent.label] + 1]
+				if displacement_dict != None:
+					parent_x += displacement_dict[node.label][0]
+					parent_y += displacement_dict[node.label][0]
 
-			if displacement_dict != None:
-				parent_x += displacement_dict[node.label][0]
-				parent_y += displacement_dict[node.label][0]
-
-			llh += math.log(norm.pdf(x, loc=parent_x, scale=sqrt(current_sigma**2 * node.edge_length)))
-			llh += math.log(norm.pdf(y, loc=parent_y, scale=sqrt(current_sigma**2 * node.edge_length)))
+				llh += math.log(norm.pdf(x, loc=parent_x, scale=sqrt(current_sigma**2 * node.edge_length)))
+				llh += math.log(norm.pdf(y, loc=parent_y, scale=sqrt(current_sigma**2 * node.edge_length)))
+	except:
+		return np.inf
 
 	return -llh
-
 def get_sigma(file_name):
 	f = open(file_name, 'r')
 	data = f.read()
@@ -132,7 +133,6 @@ def get_displacement_amounts(file_name, tree):
 
 def save_internal_locations(internal_locations, name_to_save):
 	print("saving results")
-	print(internal_locations)
 	with open(name_to_save,'w') as fout: 
 		for node in current_tree.traverse_postorder():
 			if node.is_leaf():
