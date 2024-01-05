@@ -4,10 +4,10 @@ import numpy as np
 import os
 import math
 import warnings
-from scipy.stats import multivariate_normal
+from scipy.stats import norm
 from scipy import optimize
 from sys import argv
-from math import sin,cos
+from math import sin,cos, sqrt
 
 def get_tree(file_name):
 	#input: file name
@@ -47,97 +47,48 @@ def optimize_internal_locations():
 	success = False
 	best_result = []
 	best_nllh = np.inf
-	while (count < 100):
+	while (count < 10):
 		print("iteration",count)
 		x0 = initialize_internals(num_internal) + [5] #last entry is the starting value of sigma
-		out = optimize.minimize(get_multivariate_normal_nllh, x0)
+		out = optimize.minimize(get_nllh, x0)
 		count+=1
 		if out.success == True:
 			best_nllh = out.fun
 			best_result = out.x
-			break
 	if len(best_result) == 0:
 		print("error, hit max initials")
 		return x0
 	return best_result
 
-def get_multivariate_normal_nllh(internal_locations_sigma):
-	x_mean_vec, y_mean_vec = construct_mean_vector(internal_locations_sigma[0:-1])
-	cov_matrix = construct_covariance_matrix(internal_locations_sigma[-1])
+def get_nllh(internal_locations_sigma):
+	llh = 0
+	current_sigma = internal_locations_sigma[-1]
+	if current_sigma == 0:
+		return np.inf
 
-	all_locations_x = []
-	all_locations_y = []
 	for node in current_tree.traverse_postorder():
 		if node.is_leaf():
-			all_locations_x.append(leaf_location_dict[node.label][0])
-			all_locations_y.append(leaf_location_dict[node.label][1])
+			x,y = leaf_location_dict[node.label]
 		else:
-			x_index = internal_mapping[node.label]
-			y_index = x_index + 1
-			all_locations_x.append(internal_locations_sigma[x_index])
-			all_locations_y.append(internal_locations_sigma[y_index])
+			x = internal_locations_sigma[internal_mapping[node.label]]
+			y = internal_locations_sigma[internal_mapping[node.label] + 1]
 
-	x_llh = multivariate_normal.pdf(all_locations_x, mean=x_mean_vec, cov=cov_matrix)
-	y_llh = multivariate_normal.pdf(all_locations_y, mean=y_mean_vec, cov=cov_matrix)
-	if x_llh == 0 or y_llh == 0:
-		return np.inf
-	return - (math.log(x_llh) + math.log(y_llh))
-
-def dist_from_root(node):
-	# for some reason the distance_between() function of treeswift is throwing some error..
-	dist = 0
-	for p_node in node.traverse_ancestors():
-		dist += p_node.edge_length
-	return dist
-
-def construct_covariance_matrix(sigma):
-	# return an n x n matrix, where n is the number of nodes in the tree
-	# entry ij is sigma * d(root, lca(i,j))
-
-	# find the root of the tree:
-	root = None
-	num_nodes = 0
-	cov_matrix = []
-	for node in current_tree.traverse_preorder():
-		num_nodes += 1
-		if node.is_root():
-			root = node
-
-	for node_i in current_tree.traverse_postorder():
-		entry = [0] * num_nodes
-		j_index = 0
-		for node_j in current_tree.traverse_postorder():
-
-			lca = current_tree.mrca( {node_i.label, node_j.label} )
-			entry[j_index] = sigma**2 * dist_from_root(lca)
-			j_index += 1
-		cov_matrix.append(entry)
-	return cov_matrix
-
-def construct_mean_vector(internal_locations):
-	mean_vector_x = []
-	mean_vector_y = []
-	for node in current_tree.traverse_postorder():
-		if node.is_root():
-			x_index = internal_mapping[node.label]
-			y_index = x_index + 1
-			# should put x0 here (maybe assume x0 location = given tree root location?)
-			x_mean_for_current_node = internal_locations[x_index]
-			y_mean_for_current_node = internal_locations[y_index]
+		if node.is_root(): # maximum likelihood of the root location is the root location
+			llh += math.log(norm.pdf(x, loc=x, scale=sqrt(current_sigma**2 * node.edge_length)))
+			llh += math.log(norm.pdf(y, loc=y, scale=sqrt(current_sigma**2 * node.edge_length)))
 		else:
-			x_index = internal_mapping[node.parent.label]
-			y_index = x_index + 1
-			x_mean_for_current_node = internal_locations[x_index]
-			y_mean_for_current_node = internal_locations[y_index]
+			parent_x = internal_locations_sigma[internal_mapping[node.parent.label]]
+			parent_y = internal_locations_sigma[internal_mapping[node.parent.label] + 1]
 
 			if displacement_dict != None:
-				x_mean_for_current_node += displacement_dict[node.label][0]
-				y_mean_for_current_node += displacement_dict[node.label][1]
+				parent_x += displacement_dict[node.label][0]
+				parent_y += displacement_dict[node.label][0]
 
-		mean_vector_x.append(x_mean_for_current_node)
-		mean_vector_y.append(y_mean_for_current_node)
+			llh += math.log(norm.pdf(x, loc=parent_x, scale=sqrt(current_sigma**2 * node.edge_length)))
+			llh += math.log(norm.pdf(y, loc=parent_y, scale=sqrt(current_sigma**2 * node.edge_length)))
 
-	return mean_vector_x, mean_vector_y
+	return -llh
+
 
 def get_sigma(file_name):
 	f = open(file_name, 'r')
