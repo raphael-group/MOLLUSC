@@ -23,10 +23,6 @@ def get_tree(file_name):
 	f.close()
 	return newick_tree
 
-def normalize_tree(tree):
-	height = tree.height()
-	tree.scale_edges(1/height)
-	return tree
 
 def initialize_internals(length):
 	x_avg = sum(value[0] for value in leaf_location_dict.values()) / len(leaf_location_dict)
@@ -47,7 +43,7 @@ def optimize_internal_locations():
 	success = False
 	best_result = []
 	best_nllh = np.inf
-	while (count < 2):
+	while (count < 30):
 		print("iteration",count)
 		x0 = initialize_internals(num_internal) + [5] #last entry is the starting value of sigma
 		out = optimize.minimize(get_nllh, x0)
