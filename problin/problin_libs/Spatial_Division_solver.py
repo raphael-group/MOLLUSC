@@ -14,15 +14,24 @@ from scipy.stats import norm
 
 
 class Spatial_Division_solver(SpaLin_solver):
-	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'lambda': 1, 'radius': 0,'thetas': {}}):
+	def __init__(self,treeTopo,data,prior,params={'nu':0,'phi':0,'sigma':0,'lambda_param': 1, 'radius': 0,'thetas': {}}):
 		super(Spatial_Division_solver,self).__init__(treeTopo,data,prior,params)
 
-		self.radius = params['radius']
+		self.params.radius = params['radius']
+		self.optimize_sigma = False
+		self.optimize_radius = False
+		if self.params.radius == None:
+			print("We need to optimize the radius")
+			self.optimize_radius = True
+			self.params.radius = 1
 		self.leaf_locations = data['locations']
 		self.optimize_sigma = True
 
+		#self.params.lambda_param = params['lambda_param']
 		try:
-			self.lambda_param = params['lambda_param']
+			
+			self.brlen_lower_bound = params['brlen_lower']
+			self.brlen_upper_bound = params['brlen_upper']
 		except:
 			# since we make a mySolver again.
 			pass
@@ -50,7 +59,7 @@ class Spatial_Division_solver(SpaLin_solver):
 					self.num_internal += 1
 
 	def get_params(self):
-		return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations, 'radius': self.radius, 'thetas': self.params.thetas}
+		return {'lambda_param': self.params.lambda_param, 'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations, 'radius': self.params.radius, 'thetas': self.params.thetas}
 
 	def llh_of_separation_force(self, locations, thetas):
 		llh = 0
@@ -80,9 +89,9 @@ class Spatial_Division_solver(SpaLin_solver):
 							multiplier = 1
 
 						if i == 0: # doing x coordinate
-							sum_of_displacement += multiplier * self.radius * math.cos(thetas[node_p.label])
+							sum_of_displacement += multiplier * self.params.radius * math.cos(thetas[node_p.label])
 						if i == 1: # doing y coordinate
-							sum_of_displacement += multiplier * self.radius * math.sin(thetas[node_p.label])
+							sum_of_displacement += multiplier * self.params.radius * math.sin(thetas[node_p.label])
 						prev_node_label = node_p.label
 
 					stored_means_nodes_in_tree[node.label] = sum_of_displacement
@@ -161,8 +170,14 @@ class Spatial_Division_solver(SpaLin_solver):
 		x0_phi = self.ini_phi(fixed_phi=fixed_phi)
 		x0_sigma = 22 # hard code for now     
 		x0_thetas = self.ini_thetas()
+		x0_radius = 1 #hard code for now to some unreasonable number
 
-		ini_params = (['brlens','nu','phi','lambda_param','thetas','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'thetas': x0_thetas,'lambda_param': [1], 'sigma':[x0_sigma]})
+		if self.optimize_radius == True:
+			ini_params = (['brlens','nu','phi','lambda_param','thetas','radius','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'thetas': x0_thetas,'lambda_param': [1], 'radius': [x0_radius], 'sigma':[x0_sigma]})
+		else:
+			ini_params = (['brlens','nu','phi','lambda_param','thetas','sigma'],{'brlens':x0_brlens,'nu':[x0_nu],'phi':[x0_phi], 'thetas': x0_thetas,'lambda_param': [1], 'sigma':[x0_sigma]})
+		
+
 		return ini_params 
 
 	def optimize_one(self,randseed,fixed_phi=None,fixed_nu=None,optimize_brlens=True,verbose=1,ultra_constr=False):
@@ -220,7 +235,7 @@ class Spatial_Division_solver(SpaLin_solver):
 					one_constraint[idx] = 1
 				sum_constraints.append(one_constraint)
 
-		constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraints),[214.99]*len(sum_constraints),[215.01]*len(sum_constraints),keep_feasible=False))
+		constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraints),[self.brlen_upper_bound - 0.01]*len(sum_constraints),[self.brlen_upper_bound + 0.01]*len(sum_constraints),keep_feasible=False))
 
 
 		disp = (verbose > 0)
@@ -245,7 +260,9 @@ class Spatial_Division_solver(SpaLin_solver):
 		self.x2thetas(x)
 
 		if self.optimize_sigma:
-			self.params.sigma = x[-1]   
+			self.params.sigma = x[-1] 
+		if self.optimize_radius:
+			self.params.radius = x[-2]  
 
 	def x2thetas(self,x):
 		idx = self.num_edges + 3
@@ -268,9 +285,14 @@ class Spatial_Division_solver(SpaLin_solver):
 		sigma_lower,sigma_upper = self.bound_sigma()
 		theta_lower, theta_upper = self.bound_thetas()
 		lambda_lower, lambda_upper = (0,100000)
+		radius_lower, radius_upper = (0.001, 30)
 
-		combined_lower = br_lower+[nu_lower,phi_lower,lambda_lower]+theta_lower+[sigma_lower]
-		combined_upper = br_upper+[nu_upper,phi_upper,lambda_upper]+theta_upper+[sigma_upper]
+		if self.optimize_radius:
+			combined_lower = br_lower+[nu_lower,phi_lower,lambda_lower]+theta_lower+[radius_lower]+[sigma_lower]
+			combined_upper = br_upper+[nu_upper,phi_upper,lambda_upper]+theta_upper+[radius_upper]+[sigma_upper]
+		else:
+			combined_lower = br_lower+[nu_lower,phi_lower,lambda_lower]+theta_lower+[sigma_lower]
+			combined_upper = br_upper+[nu_upper,phi_upper,lambda_upper]+theta_upper+[sigma_upper]
 
 		bounds = optimize.Bounds(combined_lower,combined_upper,keep_feasible=keep_feasible)
 		return bounds   

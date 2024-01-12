@@ -21,11 +21,14 @@ class ML_solver(Virtual_solver):
         Q = prior['Q']
         nu = params['nu']
         phi = params['phi']
+
         self.charMatrices = charMatrices
         self.trees = []
         self.num_edges = 0
+
         try:
-            self.lambda_param = params['lambda_param']
+            self.brlen_lower_bound = params['brlen_lower']
+            self.brlen_upper_bound = params['brlen_upper']
         except:
             # since we make a mySolver again.
             pass
@@ -45,7 +48,10 @@ class ML_solver(Virtual_solver):
                 Q_i_norm.append(Q_ij_norm)
             self.Q.append(Q_i_norm)   
         # setup params
-        self.params = Params(nu,phi)        
+
+        self.params = Params(nu,phi)   
+        self.params.lambda_param = params['lambda_param']   
+
         # compute numsites, num_edges, dmin, and dmax 
         self.numsites = [len(M[next(iter(M.keys()))]) for M in self.charMatrices]
         self.dmin = 0.005
@@ -70,7 +76,7 @@ class ML_solver(Virtual_solver):
         return [tree.newick() for tree in self.trees]
 
     def get_params(self):
-        return {'phi':self.params.phi,'nu':self.params.nu}
+        return {'phi':self.params.phi,'nu':self.params.nu, 'lambda_param': self.params.lambda_param,}
 
     def ultrametric_constr(self,padding={'all'}):
         param_cats,ini_params = self.ini_all()
@@ -151,7 +157,9 @@ class ML_solver(Virtual_solver):
         sum_llh = 0
         for i in range(len(self.trees)):
             tree = deepcopy(self.trees[i])
-            tree.scale_edges(self.lambda_param)
+
+            tree.scale_edges(self.params.lambda_param)
+
             Q = self.Q[i]
             numsites = self.numsites[i]
             llh = [0]*numsites
@@ -219,7 +227,7 @@ class ML_solver(Virtual_solver):
         return (eps,0.99) if fixed_phi is None else (fixed_phi-eps,fixed_phi+eps)
 
     def bound_brlen(self):        
-        return [1] * self.num_edges, [215] * self.num_edges
+        return [self.brlen_lower_bound] * self.num_edges, [self.brlen_upper_bound] * self.num_edges
         
     def get_bound(self,keep_feasible=False,fixed_phi=None,fixed_nu=None,include_brlens=True):
         br_lower,br_upper = self.bound_brlen() if include_brlens else ([],[])
@@ -253,7 +261,7 @@ class ML_solver(Virtual_solver):
 
     def x2lambda(self,x):
         lambda_index = self.num_edges + 2
-        self.lambda_param = x[lambda_index]
+        self.params.lambda_param = x[lambda_index]
 
     def __llh__(self):
         return self.lineage_llh()
@@ -267,6 +275,7 @@ class ML_solver(Virtual_solver):
         print("Negative llh: " + str(nllh))
         print("Dropout rate: " + str(self.params.phi))
         print("Silencing rate: " + str(self.params.nu))
+        print("Lambda: " + str(self.params.lambda_param))
 
     def optimize(self,initials=20,fixed_phi=None,fixed_nu=None,fixed_brlen={},verbose=1,max_trials=100,random_seeds=None,ultra_constr=False,optimize_brlens=True):
     # random_seeds can either be a single number or a list of intergers where len(random_seeds) = initials
@@ -395,7 +404,7 @@ class ML_solver(Virtual_solver):
                     one_constraint[idx] = 1
                 sum_constraints.append(one_constraint)
 
-        constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraints),[214.99]*len(sum_constraints),[215.01]*len(sum_constraints),keep_feasible=False))
+        constraints.append(optimize.LinearConstraint(csr_matrix(sum_constraints),[self.brlen_upper_bound - 0.01]*len(sum_constraints),[self.brlen_upper_bound + 0.01]*len(sum_constraints),keep_feasible=False))
 
         disp = (verbose > 0)
 

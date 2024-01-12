@@ -18,9 +18,12 @@ class SpaLin_solver(ML_solver):
 
         self.optimize_sigma = True
 
+        #self.params.lambda_param = params['lambda_param']
 
         try:
-            self.lambda_param = params['lambda_param']
+            
+            self.brlen_lower_bound = params['brlen_lower']
+            self.brlen_upper_bound = params['brlen_upper']
         except:
             # since we make a mySolver again.
             pass
@@ -41,7 +44,7 @@ class SpaLin_solver(ML_solver):
 
     
     def get_params(self):
-        return {'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations}
+        return {'lambda_param': self.params.lambda_param,'phi':self.params.phi,'nu':self.params.nu,'sigma':self.params.sigma,'locations':self.leaf_locations}
     
     def show_params(self):                   
         nllh = self.negative_llh() 
@@ -49,6 +52,7 @@ class SpaLin_solver(ML_solver):
         print("Dropout rate: " + str(self.params.phi))
         print("Silencing rate: " + str(self.params.nu))
         print("Sigma: " + str(self.params.sigma))
+        print("Lambda: " + str(self.params.lambda_param))
 
     def construct_distance_matrix(self,tree,locations):
         distances = dict()

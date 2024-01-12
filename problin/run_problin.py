@@ -40,6 +40,10 @@ def main():
     parser.add_argument("--noSilence",action='store_true',help="Assume there is no gene silencing, but allow missing data by dropout in sc-sequencing.")
     parser.add_argument("--noDropout",action='store_true',help="Assume there is no sc-sequencing dropout, but allow missing data by gene silencing.")
 
+    # constraints
+    parser.add_argument("--lower_brlen_bound", type=int,required=False,default=1,help="Lower brlen bound. Default: 1")
+    parser.add_argument("--upper_brlen_bound", type=int,required=False,default=215,help="Total time")
+
     # miscellaneous
     parser.add_argument("-v","--verbose",required=False,action='store_true',help="Show verbose messages.")
     parser.add_argument("--nInitials",type=int,required=False,default=1,help="The number of initial points. Default: 1.")
@@ -49,7 +53,7 @@ def main():
     parser.add_argument("--parallel", required=False,action='store_true', help="Turn on parallel version of topology search.")
 
     parser.add_argument("--divide", required=False,action='store_true', help="Model division of cells")
-    parser.add_argument("--radius", required=False,default=5,type=float,help="Fixed displacement of cell division")
+    parser.add_argument("--radius", required=False,default=None,type=float,help="Fixed displacement of cell division")
     parser.add_argument("--given_sigma", required=False, default = None,type=float,help="Fix Dispersal Parameter")
 
 
@@ -136,7 +140,7 @@ def main():
     prior = {'Q':[Q]} 
     
 
-    params = {'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'radius': args['radius'],  'thetas': {}, 'spatialOnly': args["spatial_only"], "sigma": args['given_sigma'], 'lambda_param': 1}  
+    params = {'brlen_lower': args["lower_brlen_bound"], 'brlen_upper': args["upper_brlen_bound"], 'nu':fixed_nu if fixed_nu is not None else problin.eps,'phi':fixed_phi if fixed_phi is not None else problin.eps, 'radius': args['radius'],  'thetas': {}, 'spatialOnly': args["spatial_only"], "sigma": args['given_sigma'], 'lambda_param': 1}  
     Topology_search = Topology_search_sequential if not args["parallel"] else Topology_search_parallel
 
     myTopoSearch = Topology_search(input_trees, selected_solver, data=data, prior=prior, params=params)
@@ -185,6 +189,7 @@ def main():
     
     # post-processing: analyze results and output 
     outfile = args["output"]        
+    print(opt_params)
     with open(outfile,'w') as fout:
         fout.write("Newick tree (s):\n") 
         for tree in opt_trees:
@@ -192,26 +197,16 @@ def main():
         fout.write("Negative-llh: " +  str(nllh) + "\n")
         fout.write("Dropout rate: " + str(opt_params['phi']) + "\n")
         fout.write("Silencing rate: " + str(opt_params['nu']) + "\n")
+        fout.write("Lambda: " + str(opt_params['lambda_param']) + "\n")
         if args["spatial"] is not None:
             fout.write("Sigma: " + str(opt_params['sigma']) + "\n")
         if args["spatial"] is not None:
             has_newly_inferred = False
             inferred_locations = {}
             mySolver = myTopoSearch.get_solver()
-            # for cell in mySolver.inferred_locations:
-            #     if not cell in known_locations:
-            #         has_newly_inferred = True
-            #         inferred_locations[cell] = mySolver.inferred_locations[cell]
-            # if has_newly_inferred:
-            #     fout.write("Inferred locations:\n")
-            #     for cell in inferred_locations:
-            #         x,y = inferred_locations[cell]
-            #         fout.write(cell + " " + str(x) + " " + str(y) + "\n")
-            # else:
-            #     fout.write("All cell locations were given as input.")  
 
             if args["divide"] == True:
-                fout.write("Radius" + str(args["radius"]) + '\n')
+                fout.write("Radius " + str(opt_params['radius']) + '\n')
                 fout.write("Thetas \n")
                 for cell in mySolver.params.thetas:
                     theta = mySolver.params.thetas[cell]
