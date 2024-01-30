@@ -10,8 +10,10 @@ In order to run this program, there are a few prerequisites:
 
    
 ## Example Command
-The following command runs our method
+The following command runs our method. Inside the problin/ directory:
 ```
 $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
 ```
-which will output to test_output.txt the quantities of interest (branch lengths, spatial sigma, mutation rate lambda, and runtime). 
+which will output to test_output.txt the quantities of interest (branch lengths, spatial sigma, mutation rate lambda, and runtime). true_tree.nwk is only used for the tree topology, and can thus have any branch lengths. 
+
+Examples of the input files character_matrix.csv, true_tree.nwk, leaf_locations.txt, k10_priors.csv are given in the examples/ directory inside problin/
