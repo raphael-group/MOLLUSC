@@ -16,4 +16,4 @@ $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locatio
 ```
 which will output to test_output.txt the quantities of interest (branch lengths, spatial sigma, mutation rate lambda, and runtime). true_tree.nwk is only used for the tree topology, and can thus have any branch lengths. 
 
-Examples of the input files character_matrix.csv, true_tree.nwk, leaf_locations.txt, k10_priors.csv are given in the examples/ directory inside problin/
+Examples of the input files character_matrix.csv, true_tree.nwk, leaf_locations.txt, k10_priors.csv are given in the examples.zip file inside problin/
