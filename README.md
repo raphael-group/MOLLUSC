@@ -16,3 +16,39 @@ $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locatio
 ```
 which will output to test_output.txt the quantities of interest (branch lengths, spatial sigma, mutation rate lambda, and runtime). true_tree.nwk is only used for the tree topology, and can thus have any branch lengths. 
 
+## Input File Descriptions
+The following are the types of files one needs to run this method
+
+- priors.csv (optional)
+- character matrix file
+- leaf_locations.txt
+- true_tree.nwk
+
+### priors.csv (optional)
+(1) The file contains an example of a prior file that can be provided to our model for the Q matrix (see PMM paper). Note this file is not required if one assumes a uniform distribution for this prior. Each site and each mutated state should have a row in this matrix, structured as:
+
+```
+site_number, state, probability 
+```
+
+### character matrix file
+(2) The first row is a header describing the contents of the subsequent matrix. The first column of the matrix is the name of a cell (in this case, 216_* refers to the fact that the leaves of the tree correspond to the 216th time sample of the video frame data from the intMEMOIR experiment). The remaining columns correspond to a given mutation site across the cells. In other words, for a given row of this matrix, the first entry is the name of the cell, the remaining 10 entries correspond to state the 10 mutation sites. 
+
+| cell_name  | site_1 | site_2 |
+| ------------- | ------------- | ------------- |
+| cell_1  | 1  | 2  |
+| cell_2  | 0  | 2  |
+| cell_3  | 1  | 0  |
+
+### leaf locations file 
+(3) This file contains the X-Y coordinates for each of the cells at the leaves of the tree. These should correspond to the cells in the character matrix in (1). Each line of this file should be of the form:
+
+```
+cell_name, x_coordinate, y_coordinate
+```
+
+### true tree (newick file)
+(4) This file contains the true tree topology for this experiment, in newick format. the labels on the nodes should match the aforementioned files. 
+
+You can see examples of these files in the included zip file, as well as in the data repository. 
+
