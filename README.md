@@ -27,7 +27,7 @@ $ python run_problin.py -c character_matrix.csv -t true_tree.nwk  --delimiter co
 ```
 
 ### Sequence + Location
-To run the method using both forms of data, include the spatial input flag. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. If the --divide flag is ommitted, then this model defaults to the Brownian motion model. For example, to run symmetric displacement with radius = 5, use
+To run the method using both forms of data, include the spatial input flag. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
 ```
 $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
 ```
@@ -38,7 +38,7 @@ $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locatio
 ```
 
 ### Location Only
-You can use the location only model by including the flag --spatial_only, for example:
+You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above, for example:
 ```
 $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5 --spatial_only
 ```
