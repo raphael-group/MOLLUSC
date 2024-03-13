@@ -32,9 +32,9 @@ To run the method using both forms of data, include the spatial input flag. Furt
 $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
 ```
 
-to run with Brownian motion: 
+to run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
 ```
-$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric
+$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric  --divide --radius 0
 ```
 
 ### Location Only
