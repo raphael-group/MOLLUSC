@@ -9,12 +9,40 @@ In order to run this program, there are a few prerequisites:
 2. Besides the above, the following Python packages are required: cmake, cvxpy, numpy, scipy, setuptools, treeswift.
 
    
-## Example Command
-The following command runs our method. Inside the problin/ directory:
+## Example Command 
+The following command runs our method with the symmetric displacement model. Inside the problin/ directory:
 ```
 $ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
 ```
 which will output to test_output.txt the quantities of interest (branch lengths, spatial sigma, mutation rate lambda, and runtime). true_tree.nwk is only used for the tree topology, and can thus have any branch lengths. 
+
+## Data Modalities Utilized 
+There are three main modes that this method can perform: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only 
+
+
+### Sequence Only Model
+To run this method using only the sequence mutation model, simply omit the --spatial (-S) input flag. For example: 
+```
+$ python run_problin.py -c character_matrix.csv -t true_tree.nwk  --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric
+```
+
+### Sequence + Location
+To run the method using both forms of data, include the spatial input flag. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. If the --divide flag is ommitted, then this model defaults to the Brownian motion model. For example, to run symmetric displacement with radius = 5, use
+```
+$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
+```
+
+to run with Brownian motion: 
+```
+$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric
+```
+
+### Location Only
+You can use the location only model by including the flag --spatial_only, for example:
+```
+$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5 --spatial_only
+```
+
 
 ## Input File Descriptions
 The following are the types of files one needs to run this method
@@ -51,4 +79,3 @@ cell_name, x_coordinate, y_coordinate
 (4) This file contains the true tree topology for this experiment, in newick format. the labels on the nodes should match the aforementioned files. 
 
 You can see examples of these files in the included zip file, as well as in the data repository. 
-
