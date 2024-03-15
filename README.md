@@ -11,7 +11,7 @@ In order to run this program, there are a few prerequisites:
 ## Example Command 
 The following command runs our method with the symmetric displacement model. Inside the problin/ directory:
 ```
-$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
+python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
 ```
 which will output to test_output.txt the quantities of interest (branch lengths, spatial sigma, mutation rate lambda, and runtime). true_tree.nwk is only used for the tree topology, and can thus have any branch lengths. Example data used in the paper can be found at the following repository: https://github.com/raphael-group/intmemoir-processed-data/
 
@@ -22,24 +22,24 @@ There are three main modes that this method can perform: (1) The sequence only m
 ### Sequence Only Model
 To run this method using only the sequence mutation model, simply omit the --spatial (-S) input flag. For example: 
 ```
-$ python run_problin.py -c character_matrix.csv -t true_tree.nwk  --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric
+python run_problin.py -c character_matrix.csv -t true_tree.nwk  --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric
 ```
 
 ### Sequence + Location
 To run the method using both forms of data, include the spatial input flag. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
 ```
-$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
+python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
 ```
 
 to run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
 ```
-$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric  --divide --radius 0
+python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric  --divide --radius 0
 ```
 
 ### Location Only
 You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above, for example:
 ```
-$ python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5 --spatial_only
+python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5 --spatial_only
 ```
 
 
