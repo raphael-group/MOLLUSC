@@ -1,0 +1,47 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/Spatial-Division/problin/run_problin.py -c real_location_data/s21c4/k10_r2_character_matrix.csv -t real_location_data/s21c4/true_tree.nwk -S real_location_data/s21c4/leaf_locations.txt --delimiter comma -p real_location_data/s21c4/k10_priors.csv -o real_location_data/s21c4/k10_r2_spalin-divide-beta3.txt --nInitials 10 --ultrametric --randomreps 3 --divide --given_beta 3 --incl_beta_bound
+Optimization by Spalin-Divide: Scipy-SLSQP using spatial information
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 7359
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 1
+Initial point 2. Random seed: 4256
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 2
+Initial point 3. Random seed: 2699
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 3
+Initial point 4. Random seed: 2028
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 4
+Initial point 5. Random seed: 9641
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 5
+Initial point 6. Random seed: 5850
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 6
+Initial point 7. Random seed: 2432
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 7
+Initial point 8. Random seed: 9529
+Solving with ultrametric constraint
+Optimal point found for initial point 8
+Negative llh: 392.8051524755584
+Dropout rate: 2.3032556524552495e-10
+Silencing rate: 1.4960110993827655e-10
+Sigma: 5.2497795534530916
+Initial point 9. Random seed: 9330
+Solving with ultrametric constraint
+Optimal point found for initial point 9
+Negative llh: 392.8051584157558
+Dropout rate: 9.20283969600505e-10
+Silencing rate: 4.1220209394922596e-10
+Sigma: 5.2497903078594925
+Initial point 10. Random seed: 7158
+Solving with ultrametric constraint
+Optimal point found for initial point 10
+Negative llh: 392.8051522330559
+Dropout rate: 1.41763229475476e-10
+Silencing rate: 1.1589627442566938e-10
+Sigma: 5.249802187028496
+Runtime (s): 4165.5294829458

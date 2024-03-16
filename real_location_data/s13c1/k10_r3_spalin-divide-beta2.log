@@ -1,0 +1,43 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/Spatial-Division/problin/run_problin.py -c real_location_data/s13c1/k10_r3_character_matrix.csv -t real_location_data/s13c1/true_tree.nwk -S real_location_data/s13c1/leaf_locations.txt --delimiter comma -p real_location_data/s13c1/k10_priors.csv -o real_location_data/s13c1/k10_r3_spalin-divide-beta2.txt --nInitials 10 --ultrametric --randomreps 3 --divide --given_beta 2 --incl_beta_bound
+Optimization by Spalin-Divide: Scipy-SLSQP using spatial information
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 3365
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 1
+Initial point 2. Random seed: 5394
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 2
+Initial point 3. Random seed: 3310
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 3
+Initial point 4. Random seed: 3669
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 4
+Initial point 5. Random seed: 4100
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 5
+Initial point 6. Random seed: 1039
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 6
+Initial point 7. Random seed: 9896
+Solving with ultrametric constraint
+Optimal point found for initial point 7
+Negative llh: 498.0813289143151
+Dropout rate: 2.443623892223848e-10
+Silencing rate: 1.5703289777187765e-10
+Sigma: 5.932416542203839
+Initial point 8. Random seed: 2185
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 8
+Initial point 9. Random seed: 8994
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 9
+Initial point 10. Random seed: 5366
+Solving with ultrametric constraint
+Optimal point found for initial point 10
+Negative llh: 498.08132752537153
+Dropout rate: 1.6822251563987394e-10
+Silencing rate: 1.2699633232671908e-10
+Sigma: 5.932429831976776
+Runtime (s): 7378.035143310204

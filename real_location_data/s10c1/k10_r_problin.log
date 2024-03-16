@@ -1,0 +1,10 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/problin/run_problin.py -c simulated_data/s10c1/k10_r_character_matrix.csv -t simulated_data/s10c1/true_tree.nwk --delimiter comma -p simulated_data/s10c1/k10_priors.csv -o simulated_data/s10c1/k10_r_problin.txt --nInitials 10 --ultrametric --randomreps 3
+Traceback (most recent call last):
+  File "/u/gh2161/problin/run_problin.py", line 193, in <module>
+    main()
+  File "/u/gh2161/problin/run_problin.py", line 62, in main
+    msa, site_names = read_sequences(args["characters"],filetype="charMtrx",delimiter=delimiter,masked_symbol=args["maskedchar"])
+  File "/n/fs/grad/gh2161/problin/problin_libs/sequence_lib.py", line 23, in read_sequences
+    with open(inFile,'r') as fin:
+FileNotFoundError: [Errno 2] No such file or directory: 'simulated_data/s10c1/k10_r_character_matrix.csv'

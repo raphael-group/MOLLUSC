@@ -1,0 +1,30 @@
+Newick tree (s):
+[&R] (((((216_13:0.06601540200464177,216_14:0.06601540200464177)189_11:0.14373137204144376,216_11:0.20974677404608552)143_6:0.21996347145614437,((216_9:0.05348190406151372,216_10:0.05348190406151372)190_8:0.37122834144711875,(216_7:0.13722965681693272,216_8:0.13722965681693272)191_7:0.28748058869169973)150_5:0.005)103_3:0.5230616081650904,216_22:0.9527718536673203)57_2:0.3303875324704777,(((216_3:0.057875173157442804,216_4:0.057875173157442804)165_2:0.45974213153435095,216_5:0.5176173046917938)112_2:0.29028050116892273,(216_1:0.36240698073789196,216_2:0.36240698073789196)171_1:0.44549082512282445)68_1:0.47526158027708154)17_1:0.005;
+Negative-llh: (183.8058576011009, 'optimal')
+Dropout rate: 1e-10
+Silencing rate: 1e-10
+Sigma: 5.648075274272143
+216_13 displacement amount (1.0, 1.0)
+216_14 displacement amount (-1.0, -1.0)
+189_11 displacement amount (1.0, -1.0)
+216_11 displacement amount (-1.0, 1.0)
+216_9 displacement amount (-1.0, 1.0)
+216_10 displacement amount (1.0, -1.0)
+216_7 displacement amount (1.0, 1.0)
+216_8 displacement amount (-1.0, -1.0)
+190_8 displacement amount (-1.0, -1.0)
+191_7 displacement amount (1.0, 1.0)
+143_6 displacement amount (1.0, -1.0)
+150_5 displacement amount (-1.0, 1.0)
+103_3 displacement amount (1.0, 1.0)
+216_22 displacement amount (-1.0, -1.0)
+216_3 displacement amount (-1.0, 0.4989962828517245)
+216_4 displacement amount (1.0, -0.4989962828517245)
+165_2 displacement amount (-1.0, 1.0)
+216_5 displacement amount (1.0, -1.0)
+216_1 displacement amount (1.0, 1.0)
+216_2 displacement amount (-1.0, -1.0)
+112_2 displacement amount (1.0, -1.0)
+171_1 displacement amount (-1.0, 1.0)
+57_2 displacement amount (-1.0, -1.0)
+68_1 displacement amount (1.0, 1.0)

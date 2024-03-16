@@ -1,0 +1,47 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/Spatial-Division/problin/run_problin.py -c real_location_data/s13c1/k10_r4_character_matrix.csv -t real_location_data/s13c1/true_tree.nwk -S real_location_data/s13c1/leaf_locations.txt --delimiter comma -p real_location_data/s13c1/k10_priors.csv -o real_location_data/s13c1/k10_r4_spalin-divide-beta3.txt --nInitials 10 --ultrametric --randomreps 3 --divide --given_beta 3 --incl_beta_bound
+Optimization by Spalin-Divide: Scipy-SLSQP using spatial information
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 2569
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 1
+Initial point 2. Random seed: 8658
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 2
+Initial point 3. Random seed: 4010
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 3
+Initial point 4. Random seed: 6801
+Solving with ultrametric constraint
+Optimal point found for initial point 4
+Negative llh: 537.9075091687837
+Dropout rate: 2.2122093144111967e-10
+Silencing rate: 1.4061062434976954e-10
+Sigma: 6.140997692891428
+Initial point 5. Random seed: 7639
+Solving with ultrametric constraint
+Optimal point found for initial point 5
+Negative llh: 537.9075045001346
+Dropout rate: 6.554046391785583e-10
+Silencing rate: 2.861603577402497e-10
+Sigma: 6.141003700836178
+Initial point 6. Random seed: 3844
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 6
+Initial point 7. Random seed: 9286
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 7
+Initial point 8. Random seed: 4539
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 8
+Initial point 9. Random seed: 8437
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 9
+Initial point 10. Random seed: 441
+Solving with ultrametric constraint
+Optimal point found for initial point 10
+Negative llh: 537.907513648413
+Dropout rate: 4.5807873715983174e-10
+Silencing rate: 2.1983097215916614e-10
+Sigma: 6.141078418522316
+Runtime (s): 7500.2201303076

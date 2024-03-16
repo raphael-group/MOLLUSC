@@ -1,0 +1,80 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/Spatial-Division/problin/run_problin.py -c real_location_data/s2c4/k10_r5_character_matrix.csv -t real_location_data/s2c4/true_tree.nwk -S real_location_data/s2c4/leaf_locations.txt --delimiter comma -p real_location_data/s2c4/k10_priors.csv -o real_location_data/s2c4/k10_r5_spalin.txt --nInitials 10 --ultrametric --randomreps 3
+Optimization by Spalin: Scipy-SLSQP using spatial information
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 629
+Solving with ultrametric constraint
+Optimal point found for initial point 1
+Negative llh: 119.23213578245411
+Dropout rate: 1.3637727832159411e-10
+Silencing rate: 1.2888021410426928e-10
+Sigma: 24.235554148198965
+Initial point 2. Random seed: 8337
+Solving with ultrametric constraint
+Optimal point found for initial point 2
+Negative llh: 119.23213575254181
+Dropout rate: 1e-10
+Silencing rate: 1e-10
+Sigma: 24.235369929921475
+Initial point 3. Random seed: 8062
+Solving with ultrametric constraint
+Optimal point found for initial point 3
+Negative llh: 119.23213590890187
+Dropout rate: 1.0000000000000002e-10
+Silencing rate: 1.0000000000000002e-10
+Sigma: 24.235183815628794
+Initial point 4. Random seed: 946
+Solving with ultrametric constraint
+Optimal point found for initial point 4
+Negative llh: 119.23213671778814
+Dropout rate: 4.414918581552684e-09
+Silencing rate: 7.62412232084078e-09
+Sigma: 24.235880106196095
+Initial point 5. Random seed: 7696
+Solving with ultrametric constraint
+Optimal point found for initial point 5
+Negative llh: 119.23213579075707
+Dropout rate: 1.354764766910057e-10
+Silencing rate: 1.3959795564026644e-10
+Sigma: 24.234684336453114
+Initial point 6. Random seed: 2478
+Solving with ultrametric constraint
+Optimal point found for initial point 6
+Negative llh: 119.23213613619806
+Dropout rate: 6.269383569758317e-10
+Silencing rate: 1.0267376354607314e-09
+Sigma: 24.23411476546202
+Initial point 7. Random seed: 9765
+Solving with ultrametric constraint
+Optimal point found for initial point 7
+Negative llh: 119.23213625311661
+Dropout rate: 1e-10
+Silencing rate: 1e-10
+Sigma: 24.23525368752266
+Initial point 8. Random seed: 8045
+Solving with ultrametric constraint
+Optimal point found for initial point 8
+Negative llh: 119.23213577425875
+Dropout rate: 1.5516902741413716e-10
+Silencing rate: 2.2340134906864865e-10
+Sigma: 24.235657162486902
+Initial point 9. Random seed: 5114
+Solving with ultrametric constraint
+Optimal point found for initial point 9
+Negative llh: 119.23213655696182
+Dropout rate: 2.983568211541688e-10
+Silencing rate: 2.4298950396526516e-10
+Sigma: 24.228857010855837
+Initial point 10. Random seed: 9359
+Solving with ultrametric constraint
+Optimal point found for initial point 10
+Negative llh: 119.23213574327752
+Dropout rate: 1.9896955930374162e-10
+Silencing rate: 2.882286482641161e-10
+Sigma: 24.23492904598004
+Traceback (most recent call last):
+  File "/u/gh2161/Spatial-Division/problin/run_problin.py", line 223, in <module>
+    main()
+  File "/u/gh2161/Spatial-Division/problin/run_problin.py", line 214, in main
+    for cell in mySolver.params.displacement_amounts:
+AttributeError: 'Params' object has no attribute 'displacement_amounts'

@@ -1,0 +1,36 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/Spatial-Division/problin/run_problin.py -c real_location_data/s20c4/k10_r2_character_matrix.csv -t real_location_data/s20c4/true_tree.nwk -S real_location_data/s20c4/leaf_locations.txt --delimiter comma -p real_location_data/s20c4/k10_priors.csv -o real_location_data/s20c4/k10_r2_spalin-divide-beta05.txt --nInitials 10 --ultrametric --randomreps 3 --divide --given_beta 0.5 --incl_beta_bound
+Optimization by Spalin-Divide: Scipy-SLSQP using spatial information
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 7404
+Solving with ultrametric constraint
+Traceback (most recent call last):
+  File "/u/gh2161/Spatial-Division/problin/run_problin.py", line 223, in <module>
+    main()
+  File "/u/gh2161/Spatial-Division/problin/run_problin.py", line 166, in main
+    nllh = mySolver.optimize(initials=args["nInitials"],fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=args["verbose"],random_seeds=random_seeds,ultra_constr=args["ultrametric"],optimize_brlens=True)      
+  File "/n/fs/grad/gh2161/Spatial-Division/problin/problin_libs/ML_solver.py", line 298, in optimize
+    nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr,optimize_brlens=optimize_brlens)
+  File "/n/fs/grad/gh2161/Spatial-Division/problin/problin_libs/Spatial_Division_solver.py", line 264, in optimize_one
+    out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_minimize.py", line 705, in minimize
+    res = _minimize_slsqp(fun, x0, args, jac, bounds,
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_slsqp_py.py", line 374, in _minimize_slsqp
+    sf = _prepare_scalar_function(func, x, jac=jac, args=args, epsilon=eps,
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_optimize.py", line 332, in _prepare_scalar_function
+    sf = ScalarFunction(fun, x0, args, grad, hess,
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 158, in __init__
+    self._update_fun()
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 251, in _update_fun
+    self._update_fun_impl()
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 155, in update_fun
+    self.f = fun_wrapped(self.x)
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 137, in fun_wrapped
+    fx = fun(np.copy(x), *args)
+  File "/n/fs/grad/gh2161/Spatial-Division/problin/problin_libs/Spatial_Division_solver.py", line 171, in nllh
+    return -self.__llh__()
+  File "/n/fs/grad/gh2161/Spatial-Division/problin/problin_libs/Spatial_Division_solver.py", line 123, in __llh__
+    return self.lineage_llh() + self.llh_of_separation_force(self.leaf_locations, self.params.displacement_amounts)
+  File "/n/fs/grad/gh2161/Spatial-Division/problin/problin_libs/Spatial_Division_solver.py", line 68, in llh_of_separation_force
+    sum_of_displacement += displacement_amounts[node_p.label][i]
+KeyError: '59_1'

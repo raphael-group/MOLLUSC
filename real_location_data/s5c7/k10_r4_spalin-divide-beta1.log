@@ -1,0 +1,43 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/Spatial-Division/problin/run_problin.py -c real_location_data/s5c7/k10_r4_character_matrix.csv -t real_location_data/s5c7/true_tree.nwk -S real_location_data/s5c7/leaf_locations.txt --delimiter comma -p real_location_data/s5c7/k10_priors.csv -o real_location_data/s5c7/k10_r4_spalin-divide-beta1.txt --nInitials 10 --ultrametric --randomreps 3 --divide --given_beta 1 --incl_beta_bound
+Optimization by Spalin-Divide: Scipy-SLSQP using spatial information
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 2460
+Solving with ultrametric constraint
+Optimal point found for initial point 1
+Negative llh: 410.5672832173507
+Dropout rate: 7.418878238031685e-10
+Silencing rate: 3.803079516475775e-10
+Sigma: 6.168853886164923
+Initial point 2. Random seed: 6157
+Solving with ultrametric constraint
+Optimal point found for initial point 2
+Negative llh: 410.5672778958764
+Dropout rate: 1.0000000000000002e-10
+Silencing rate: 1.0000000000000002e-10
+Sigma: 6.168835637789898
+Initial point 3. Random seed: 9759
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 3
+Initial point 4. Random seed: 1765
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 4
+Initial point 5. Random seed: 4713
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 5
+Initial point 6. Random seed: 429
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 6
+Initial point 7. Random seed: 9732
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 7
+Initial point 8. Random seed: 7712
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 8
+Initial point 9. Random seed: 3664
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 9
+Initial point 10. Random seed: 5064
+Solving with ultrametric constraint
+Fatal: failed to optimize using initial point 10
+Runtime (s): 3429.2625912092626

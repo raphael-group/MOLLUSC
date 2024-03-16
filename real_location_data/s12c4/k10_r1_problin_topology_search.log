@@ -1,0 +1,6 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/problin/run_problin.py -c simulated_data/s12c4/k10_r1_character_matrix.csv -t simulated_data/s12c4/true_tree.nwk --delimiter comma -p simulated_data/s12c4/k10_priors.csv -o simulated_data/s12c4/k10_r1_problin_topology.txt --nInitials 10 --ultrametric --randomreps 3 --topology_search
+Optimization by EM algorithm
+Starting topology search
+Running topology search sequentially...
+Runtime (s): 8499.496149158105

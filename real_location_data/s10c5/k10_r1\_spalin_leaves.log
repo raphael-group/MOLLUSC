@@ -1,0 +1,47 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/problin/run_problin.py -c simulated_data/s10c5/k10_r1_character_matrix.csv -t simulated_data/s10c5/true_tree.nwk -S simulated_data/s10c5/leaf_locations.txt --delimiter comma -p simulated_data/s10c5/k10_priors.csv -o simulated_data/s10c5/k10_r1\_spalin_leaves.txt --nInitials 10 --ultrametric --randomreps 3 --topology_search
+Optimization by Spalin: Scipy-SLSQP using spatial information
+Starting topology search
+Running topology search sequentially...
+Traceback (most recent call last):
+  File "/u/gh2161/problin/run_problin.py", line 193, in <module>
+    main()
+  File "/u/gh2161/problin/run_problin.py", line 160, in main
+    opt_trees,max_score,opt_params = myTopoSearch.search(maxiter=args["maxIters"], verbose=args["verbose"], strategy=my_strategy, nreps=args['randomreps'],checkpoint_file=checkpoint_file) 
+  File "/n/fs/grad/gh2161/problin/problin_libs/Topology_search.py", line 101, in search
+    trees,score,params = self.__search_one__(strategy,maxiter=maxiter,verbose=verbose,only_marked=False,checkpoint_file=checkpoint_file)
+  File "/n/fs/grad/gh2161/problin/problin_libs/Topology_search.py", line 134, in __search_one__
+    curr_score,status = mySolver.score_tree(strategy=score_tree_strategy)
+  File "/n/fs/grad/gh2161/problin/problin_libs/ML_solver.py", line 93, in score_tree
+    nllh,status = self.optimize(initials=initials,verbose=-1,ultra_constr=ultra_constr,fixed_phi=fixed_phi,fixed_nu=fixed_nu,fixed_brlen=fixed_brlen)
+  File "/n/fs/grad/gh2161/problin/problin_libs/ML_solver.py", line 297, in optimize
+    nllh,status = self.optimize_one(randseed,fixed_phi=fixed_phi,fixed_nu=fixed_nu,verbose=verbose,ultra_constr=ultra_constr,optimize_brlens=optimize_brlens)
+  File "/n/fs/grad/gh2161/problin/problin_libs/ML_solver.py", line 363, in optimize_one
+    out = optimize.minimize(nllh, x0, method="SLSQP", options={'disp':disp,'iprint':3,'maxiter':1000}, bounds=bounds,constraints=constraints)
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_minimize.py", line 705, in minimize
+    res = _minimize_slsqp(fun, x0, args, jac, bounds,
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_slsqp_py.py", line 432, in _minimize_slsqp
+    g = append(wrapped_grad(x), 0.0)
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_optimize.py", line 346, in eval
+    return func(x)
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 273, in grad
+    self._update_grad()
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 256, in _update_grad
+    self._update_grad_impl()
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 173, in update_grad
+    self.g = approx_derivative(fun_wrapped, self.x, f0=self.f,
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_numdiff.py", line 505, in approx_derivative
+    return _dense_difference(fun_wrapped, x0, f0, h,
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_numdiff.py", line 576, in _dense_difference
+    df = fun(x) - f0
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_numdiff.py", line 456, in fun_wrapped
+    f = np.atleast_1d(fun(x, *args, **kwargs))
+  File "/u/gh2161/miniconda3/lib/python3.10/site-packages/scipy/optimize/_differentiable_functions.py", line 137, in fun_wrapped
+    fx = fun(np.copy(x), *args)
+  File "/n/fs/grad/gh2161/problin/problin_libs/ML_solver.py", line 333, in nllh
+    return -self.__llh__()
+  File "/n/fs/grad/gh2161/problin/problin_libs/SpaLin_solver.py", line 45, in __llh__
+    return self.lineage_llh() + self.spatial_llh(self.inferred_locations)
+  File "/n/fs/grad/gh2161/problin/problin_libs/ML_solver.py", line 154, in lineage_llh
+    node.L0[site] = nu*(-node.edge_length) + log(1-p) + log(q) + log(1-phi) if (1-p)*q*(1-phi)>0 else min_llh
+KeyboardInterrupt

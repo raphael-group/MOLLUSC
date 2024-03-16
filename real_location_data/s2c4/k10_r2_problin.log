@@ -1,0 +1,90 @@
+Launching Problin version 0.5b
+Problin was called as follow: /u/gh2161/problin/run_problin.py -c simulated_data/s2c4/k10_r2_character_matrix.csv -t simulated_data/s2c4/true_tree.nwk --delimiter comma -p simulated_data/s2c4/k10_priors.csv -o simulated_data/s2c4/k10_r2_problin.txt --nInitials 10 --ultrametric --randomreps 3
+Optimization by EM algorithm
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 3633
+Solving with ultrametric constraint
+Initial phi: 0.006427907113693428. Initial nu: 0.8647127065205065. Initial nllh: 12335.975216669398
+EM finished after 14 iterations.
+Optimal point found for initial point 1
+Negative llh: 55.65047241051451
+Dropout rate: 0
+Silencing rate: 6.941579545041013e-07
+Initial point 2. Random seed: 3118
+Solving with ultrametric constraint
+Initial phi: 0.36918278542538285. Initial nu: 0.41106291023104674. Initial nllh: 123.0407532772688
+EM finished after 13 iterations.
+Optimal point found for initial point 2
+Negative llh: 55.65047172390385
+Dropout rate: 0
+Silencing rate: 6.843997431416264e-07
+Initial point 3. Random seed: 8650
+Solving with ultrametric constraint
+Initial phi: 0.6923594988145668. Initial nu: 0.511386429258829. Initial nllh: 200.05189840602134
+EM finished after 14 iterations.
+Optimal point found for initial point 3
+Negative llh: 55.65047157454333
+Dropout rate: 0
+Silencing rate: 6.847199351992672e-07
+Initial point 4. Random seed: 131
+Solving with ultrametric constraint
+Initial phi: 0.5858618880634616. Initial nu: 0.446157976309968. Initial nllh: 166.9429219365078
+EM finished after 14 iterations.
+Optimal point found for initial point 4
+Negative llh: 55.65047161895873
+Dropout rate: 0
+Silencing rate: 6.858414545263216e-07
+Initial point 5. Random seed: 6549
+Solving with ultrametric constraint
+Initial phi: 0.3355195652500439. Initial nu: 0.6973971708192249. Initial nllh: 132.69120398968167
+EM finished after 14 iterations.
+Optimal point found for initial point 5
+Negative llh: 55.650471523783345
+Dropout rate: 0
+Silencing rate: 6.82612207390993e-07
+Initial point 6. Random seed: 922
+Solving with ultrametric constraint
+Initial phi: 0.6820912363017151. Initial nu: 0.8705803913411017. Initial nllh: 215.39592279772535
+EM finished after 14 iterations.
+Optimal point found for initial point 6
+Negative llh: 55.65047158674268
+Dropout rate: 0
+Silencing rate: 6.831807016280125e-07
+Initial point 7. Random seed: 9415
+Solving with ultrametric constraint
+Initial phi: 0.9363162040951875. Initial nu: 0.18968696185985925. Initial nllh: 340.8696695327593
+EM finished after 13 iterations.
+Optimal point found for initial point 7
+Negative llh: 55.65047130599647
+Dropout rate: 0
+Silencing rate: 6.804309643963185e-07
+Initial point 8. Random seed: 9942
+Solving with ultrametric constraint
+Initial phi: 0.35053869244202096. Initial nu: 0.21385715829646088. Initial nllh: 109.90191069168604
+EM finished after 12 iterations.
+Optimal point found for initial point 8
+Negative llh: 55.65047248963289
+Dropout rate: 0
+Silencing rate: 6.98138771001586e-07
+Initial point 9. Random seed: 3977
+Solving with ultrametric constraint
+Initial phi: 0.20743068930350037. Initial nu: 0.7913555388536275. Initial nllh: 119.93531631787432
+EM finished after 14 iterations.
+Optimal point found for initial point 9
+Negative llh: 55.650471561957
+Dropout rate: 0
+Silencing rate: 6.830066007502432e-07
+Initial point 10. Random seed: 6223
+Solving with ultrametric constraint
+Initial phi: 0.1008770534930879. Initial nu: 0.12993800427058627. Initial nllh: 73.02227502208609
+EM finished after 14 iterations.
+Optimal point found for initial point 10
+Negative llh: 55.65047116575732
+Dropout rate: 0
+Silencing rate: 6.795544711153884e-07
+Traceback (most recent call last):
+  File "/u/gh2161/problin/run_problin.py", line 193, in <module>
+    main()
+  File "/u/gh2161/problin/run_problin.py", line 172, in main
+    fout.write("Sigma: " + str(opt_params['sigma']) + "\n")
+KeyError: 'sigma'
