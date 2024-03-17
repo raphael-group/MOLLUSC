@@ -1,0 +1,13 @@
+Launching Problin version 0.5b
+Problin was called as follow: run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_example.txt --timescale 215 -S example/leaf_locations.txt
+Optimization by Spalin: Scipy-SLSQP using spatial information
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 3103
+Solving with ultrametric constraint
+Optimal point found for initial point 1
+Negative llh: 323.8105314555437
+Dropout rate: 4.606493191074089e-10
+Silencing rate: 2.9502345588870643e-10
+Sigma: 2.4894059360221723
+Lambda: 0.005865686198190613
+Runtime (s): 76.676216708

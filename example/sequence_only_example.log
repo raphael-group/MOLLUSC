@@ -1,0 +1,12 @@
+Launching Problin version 0.5b
+Problin was called as follow: run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sequence_only_example.txt --timescale 215
+Optimization by generic solver (Scipy-SLSQP)
+Optimizing branch lengths, phi, and nu without topology search
+Initial point 1. Random seed: 3103
+Solving with ultrametric constraint
+Optimal point found for initial point 1
+Negative llh: 139.63577988579067
+Dropout rate: 2.105399132164944e-10
+Silencing rate: 1.525244006304103e-10
+Lambda: 0.005926574806355476
+Runtime (s): 25.33199225

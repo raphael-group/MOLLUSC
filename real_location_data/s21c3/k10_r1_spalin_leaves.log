@@ -1,6 +1,0 @@
-Launching Problin version 0.5b
-Problin was called as follow: /u/gh2161/problin/run_problin.py -c simulated_data/s21c3/k10_r1_character_matrix.csv -t simulated_data/s21c3/true_tree.nwk -S simulated_data/s21c3/leaf_locations.txt --delimiter comma -p simulated_data/s21c3/k10_priors.csv -o simulated_data/s21c3/k10_r1_spalin_leaves.txt --nInitials 10 --ultrametric --randomreps 3 --topology_search
-Optimization by Spalin: Scipy-SLSQP using spatial information
-Starting topology search
-Running topology search sequentially...
-Runtime (s): 13035.872198841069
