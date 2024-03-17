@@ -8,40 +8,43 @@ In order to run this program, there are a few prerequisites:
 1. This implementation requires MOSEK (a package which handles optimization problems): Please refer to the installation page for MOSEK at: https://www.mosek.com/products/academic-licenses/
 2. Besides the above, the following Python packages are required: cmake, cvxpy, numpy, scipy, setuptools, treeswift.
 
-## Example Command 
-The following command runs our method with the symmetric displacement model. Inside the problin/ directory:
-```
-python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
-```
-which will output to test_output.txt the quantities of interest (branch lengths, spatial sigma, mutation rate lambda, and runtime). true_tree.nwk is only used for the tree topology, and can thus have any branch lengths. Example data used in the paper can be found at the following repository: https://github.com/raphael-group/intmemoir-processed-data/
-
-## Data Modalities Utilized 
-There are three main modes that this method can perform: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only 
-
+## Examples command for each data modalities utilized
+There are three main modes that this method can perform: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. For each of these modalities we show an example comman with the input files in the example/ directory.
 
 ### Sequence Only Model
+
 To run this method using only the sequence mutation model, simply omit the --spatial (-S) input flag. For example: 
 ```
-python run_problin.py -c character_matrix.csv -t true_tree.nwk  --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sequence_only_example.txt --timescale 215
 ```
 
 ### Sequence + Location
 To run the method using both forms of data, include the spatial input flag. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
 ```
-python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5
 ```
 
 to run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
 ```
-python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric  --divide --radius 0
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_example.txt --timescale 215 -S example/
 ```
 
 ### Location Only
 You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above, for example:
 ```
-python run_problin.py -c character_matrix.csv -t true_tree.nwk -S leaf_locations.txt --delimiter comma -p k10_priors.csv -o test_output.txt --nInitials 10 --ultrametric --divide --radius 5 --spatial_only
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only
 ```
 
+for Brownian motion. For symmetric displacement:
+```
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 --spatial_only
+```
+
+### Other input flags.
+A description of all the other input flags (as well as the ones described above for the different data input modalities) can be seen by running:
+```
+python run_spalin.py --help
+```
 
 ## Input File Descriptions
 The following are the types of files one needs to run this method
