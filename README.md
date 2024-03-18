@@ -63,18 +63,21 @@ To run the method using both forms of data, include the spatial locations via `-
 python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 -v
 ```
 
-to run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
+To run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
 ```
 python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_example.txt --timescale 215 -S example/leaf_locations.txt -v
 ```
 
 ### Location Only
-You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above, for example:
+You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above. 
+For example, to only use spatial data with symmetric displacement and radius = 5, use
+```
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 --spatial_only -v
+```
+If you instead want to use the Brownian motion model, use
 ```
 python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only -v
 ```
 
 for Brownian motion. For symmetric displacement:
-```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 --spatial_only -v
-```
+
