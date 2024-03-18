@@ -79,5 +79,3 @@ If you instead want to use the Brownian motion model, use
 python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only -v
 ```
 
-for Brownian motion. For symmetric displacement:
-
