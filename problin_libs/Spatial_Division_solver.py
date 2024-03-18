@@ -47,11 +47,8 @@ class Spatial_Division_solver(SpaLin_solver):
 		self.onlyspatial = False
 		try:
 			self.onlyspatial = params["spatialOnly"]
-			if self.onlyspatial:
-				print("only spatial")
 		except:
 			pass
-
 		self.num_internal = 0
 		for tree in self.trees:
 			for node in tree.traverse_postorder():
@@ -189,6 +186,7 @@ class Spatial_Division_solver(SpaLin_solver):
 			return -self.__llh__()
 		
 		seed(a=randseed)
+		np.random.seed(randseed)
 		#x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
 		param_cats,ini_params = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
 		x0 = []

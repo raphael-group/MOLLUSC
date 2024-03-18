@@ -364,8 +364,9 @@ class ML_solver(Virtual_solver):
         warnings.filterwarnings("ignore")
         def nllh(x): 
             self.x2params(x,fixed_nu=fixed_nu,fixed_phi=fixed_phi,include_brlens=optimize_brlens)            
-            return -self.__llh__()
+            return -self.__llh__()  
         seed(a=randseed)
+        np.random.seed(randseed)
         #x0 = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         param_cats,ini_params = self.ini_all(fixed_phi=fixed_phi,fixed_nu=fixed_nu)
         x0 = []

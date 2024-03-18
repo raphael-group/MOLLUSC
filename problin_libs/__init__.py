@@ -1,13 +1,13 @@
 # below we define the constants that are shared among all libraries
 
 
-PROGRAM_NAME = "Problin"
-PROGRAM_AUTHOR = ["Uyen Mai","Gillian Chu","Ben Raphael"]
+PROGRAM_NAME = "Spalin"
+PROGRAM_AUTHOR = ["Uyen Mai","Gary Hu","Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
-PROGRAM_VERSION = "0.5b"
-PROGRAM_YEAR = "2023"
+PROGRAM_VERSION = "1.0"
+PROGRAM_YEAR = "2024"
 PROGRAM_INSTITUTE = "Computer Science Department, Princeton University"
-PROGRAM_DESCRIPTION = "Probabilistic Lineage Tracing with Mixed-type Missing Data"
+PROGRAM_DESCRIPTION = "Maximum Likelihood Phylogeographic Inference of Cell Motility and Cell Division from Spatial Lineage Tracing Data"
 
 
 ###### Hyper/default parameters #########
