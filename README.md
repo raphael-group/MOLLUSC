@@ -1,27 +1,24 @@
 # Spatial-Division
 
-This repository contains an implementation of a cell-specific spatial lineage tracing phylogeographic reconstruction method called spalin (placeholder name). This code uses sc-mail (https://github.com/raphael-group/sc-mail/) to solve the likelihood of the sequence mutation portion of spatial lineage tracing data, and extends that codebase to solve the spatial likelihood and combine them together. Please see that repository for more information on the possible input flags and options.
-
-In order to run this program, there are a few prerequisites:
+This repository contains an implementation of a cell-specific spatial lineage tracing phylogeographic reconstruction method called spalin (placeholder name).
 
 ## Prerequisite Libraries/Packages
-1. This implementation requires MOSEK (a package which handles optimization problems): Please refer to the installation page for MOSEK at: https://www.mosek.com/products/academic-licenses/
-2. Besides the above, the following Python packages are required: cmake, cvxpy, numpy, scipy, setuptools, treeswift.
+The following Python packages are required: cmake, cvxpy, numpy, scipy, setuptools, treeswift.
 
 ## Examples command for each data modalities utilized
-There are three main modes that this method can perform: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. For each of these modalities we show an example comman with the input files in the example/ directory.
+There are three main modes that this method can perform: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. For each of these modalities we show an example command with the input files in the `example` directory.
 
 ### Sequence Only Model
 
-To run this method using only the sequence mutation model, simply omit the --spatial (-S) input flag. For example: 
+To run this method using only the sequence mutation model, input the character matrix via `-c` and the tree topology via `-t`. For example: 
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sequence_only_example.txt --timescale 215
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sequence_only_example.txt --timescale 215 -v
 ```
 
 ### Sequence + Location
-To run the method using both forms of data, include the spatial input flag. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
+To run the method using both forms of data, include the spatial locations via `-S` in addition to `-c` and `-t` as described above. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 -v
 ```
 
 to run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
@@ -32,12 +29,12 @@ python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --
 ### Location Only
 You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above, for example:
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only -v
 ```
 
 for Brownian motion. For symmetric displacement:
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 --spatial_only
+python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 --spatial_only -v
 ```
 
 ### Other input flags.
