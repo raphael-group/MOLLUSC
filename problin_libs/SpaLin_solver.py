@@ -48,11 +48,14 @@ class SpaLin_solver(ML_solver):
     
     def show_params(self):                   
         nllh = self.negative_llh() 
+
         print("Negative llh: " + str(nllh))
-        print("Dropout rate: " + str(self.params.phi))
-        print("Silencing rate: " + str(self.params.nu))
+        if self.onlyspatial == False: 
+            print("Dropout rate: " + str(self.params.phi))
+            print("Silencing rate: " + str(self.params.nu))
+            print("Lambda: " + str(self.params.lambda_param))
         print("Sigma: " + str(self.params.sigma))
-        print("Lambda: " + str(self.params.lambda_param))
+        
 
     def construct_distance_matrix(self,tree,locations):
         distances = dict()
