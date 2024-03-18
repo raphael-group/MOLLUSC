@@ -19,15 +19,10 @@ The following are the types of files one needs to run this method
 - leaf_locations.txt
 - true_tree.nwk
 
-### priors.csv (optional)
-(1) The file contains an example of a prior file that can be provided to our model for the Q matrix (see PMM paper). Note this file is not required if one assumes a uniform distribution for this prior. Each site and each mutated state should have a row in this matrix, structured as:
-
-```
-site_number, state, probability 
-```
+You can see examples of these files in the `example` folder.
 
 ### character matrix file
-(2) The first row is a header describing the contents of the subsequent matrix. The first column of the matrix is the name of a cell (in this case, 216_* refers to the fact that the leaves of the tree correspond to the 216th time sample of the video frame data from the intMEMOIR experiment). The remaining columns correspond to a given mutation site across the cells. In other words, for a given row of this matrix, the first entry is the name of the cell, the remaining  entries correspond to state the mutation sites. 
+The first row is a header describing the contents of the subsequent matrix. The first column of the matrix is the name of a cell (in this case, 216_* refers to the fact that the leaves of the tree correspond to the 216th time sample of the video frame data from the intMEMOIR experiment). The remaining columns correspond to a given mutation site across the cells. In other words, for a given row of this matrix, the first entry is the name of the cell, the remaining  entries correspond to state the mutation sites. 
 
 | cell_name  | site_1 | site_2 |
 | ------------- | ------------- | ------------- |
@@ -35,20 +30,27 @@ site_number, state, probability
 | cell_2  | 0  | 2  |
 | cell_3  | 1  | 0  |
 
-### leaf locations file 
-(3) This file contains the X-Y coordinates for each of the cells at the leaves of the tree. These should correspond to the cells in the character matrix in (1). Each line of this file should be of the form:
+### tree topology (newick file)
+This file contains the tree topology for this experiment, in newick format. The labels on the leaf nodes must match the cell names specified in the character matrix.
+
+### leaf locations file
+This file contains the X-Y coordinates for each of the cells at the leaves of the tree. These should correspond to the cells in the character matrix. Each line of this file should be of the form:
 
 ```
 cell_name, x_coordinate, y_coordinate
 ```
 
-### true tree (newick file)
-(4) This file contains the true tree topology for this experiment, in newick format. the labels on the nodes should match the aforementioned files. 
+### priors.csv (optional)
+The file contains prior mutation probabilities that can be provided to our model for the Q matrix of the PMM model (see the original paper for more details). Each site and each mutated state should have a row in this matrix, structured as:
 
-You can see examples of these files in the included zip file, as well as in the data repository. 
+```
+site_number, state, probability 
+```
+The prior is not required if one assumes a uniform distribution for mutation states.
 
 ## Examples
-There are three main modes that this method can perform: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. For each of these modalities we show an example command with the input files in the `example` directory.
+The software can run in one of the following three main modes: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. 
+For each of these modalities we show an example command with the input files in the `example` directory.
 
 ### Sequence Only Model
 
