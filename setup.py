@@ -26,7 +26,7 @@ param = {
         'license': problin_libs.PROGRAM_LICENSE,
         'packages': find_packages(),
         'include_package_data': True,
-        'scripts': ['run_spalin.py'],
+        'scripts': ['run_mollusc.py'],
         'zip_safe': True,
         #'setup_requires': ['numpy'],
         # SCS requires numpy < 1.2 to be installed: https://github.com/bodono/scs-python/issues/32#issuecomment-802977693
@@ -50,7 +50,7 @@ param = {
         ],
         'entry_points': {
             'console_scripts': [
-                'run_spalin= run_spalin:main',
+                'run_mollusc= run_mollusc:main',
              ],
         },
 }
