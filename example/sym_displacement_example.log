@@ -1,16 +1,13 @@
-Launching Problin version 0.5b
-Problin was called as follow: run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5
-Optimization by Spalin-Divide: Scipy-SLSQP using spatial information
+Launching MOLLUSC version 1.0
+MOLLUSC was called as follow: run_mollusc.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 -o example/sym_displacement_example.txt --timescale 215 --randseed 505 -S example/leaf_locations.txt --divide --radius 5
+Optimization by MOLLUSC-Divide: Scipy-SLSQP using spatial information
 Optimizing branch lengths, phi, and nu without topology search
-Initial point 1. Random seed: 3103
-Solving with ultrametric constraint
-Fatal: failed to optimize using initial point 1
-Initial point 1. Random seed: 3104
+Initial point 1. Random seed: 505
 Solving with ultrametric constraint
 Optimal point found for initial point 1
-Negative llh: 348.80705162851285
-Dropout rate: 1.50803439620791e-10
-Silencing rate: 1.0008242478318171e-10
-Sigma: 1.3358909904077272
-Lambda: 0.005963734664236615
-Runtime (s): 239.972667084
+Negative llh: 348.8070204211311
+Dropout rate: 6.807669535226932e-10
+Silencing rate: 3.7711318328757636e-10
+Lambda: 0.0059591233505001265
+Sigma: 1.3356083401201322
+Runtime (s): 199.441186542

@@ -1,11 +1,11 @@
-Launching Spalin version 1.0
-Spalin was called as follow: run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only
-Optimization by Spalin: Scipy-SLSQP using spatial information
+Launching MOLLUSC version 1.0
+MOLLUSC was called as follow: run_mollusc.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 -o example/brownian_spatialonly_example.txt --timescale 215 --randseed 505 -S example/leaf_locations.txt --spatial_only
+Optimization by MOLLUSC: Scipy-SLSQP using spatial information
 Optimizing branch lengths, phi, and nu without topology search
 only spatial
-Initial point 1. Random seed: 568
+Initial point 1. Random seed: 505
 Solving with ultrametric constraint
 Optimal point found for initial point 1
 Negative llh: 178.3626458637566
 Sigma: 2.4870522126047
-Runtime (s): 60.025139834
+Runtime (s): 61.254922375
