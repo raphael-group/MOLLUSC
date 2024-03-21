@@ -1,7 +1,7 @@
 # below we define the constants that are shared among all libraries
 
 
-PROGRAM_NAME = "Spalin"
+PROGRAM_NAME = "MOLLUSC"
 PROGRAM_AUTHOR = ["Uyen Mai","Gary Hu","Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
 PROGRAM_VERSION = "1.0"
