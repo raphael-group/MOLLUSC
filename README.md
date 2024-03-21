@@ -1,6 +1,6 @@
-# Spatial-Division
+# MOLLUSC (Maximum Likelihood Estimation Of Lineage and Location Using Single Cell Spatial Lineage tracing Data)
 
-This repository contains an implementation of a cell-specific spatial lineage tracing phylogeographic reconstruction method called spalin (placeholder name).
+This repository contains an implementation of MOLLUSC, a cell-specific spatial lineage tracing phylogeographic reconstruction method.
 
 ## Prerequisite Libraries/Packages
 The following Python packages are required: cmake, cvxpy, numpy, scipy, setuptools, treeswift.
