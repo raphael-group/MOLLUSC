@@ -8,7 +8,7 @@ The following Python packages are required: cmake, cvxpy, numpy, scipy, setuptoo
 ## Usage
 A description of all the other input flags (as well as the ones described above for the different data input modalities) can be seen by running:
 ```
-python run_spalin.py --help
+python run_mollusc.py --help
 ```
 
 ## Input File Descriptions
@@ -56,28 +56,28 @@ For each of these modalities we show an example command with the input files in 
 
 To run this method using only the sequence mutation model, input the character matrix via `-c` and the tree topology via `-t`. For example: 
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sequence_only_example.txt --timescale 215 -v
+python run_mollusc.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sequence_only_example.txt --timescale 215 -v
 ```
 
 ### Sequence + Location
 To run the method using both forms of data, include the spatial locations via `-S` in addition to `-c` and `-t` as described above. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 -v
+python run_mollusc.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 -v
 ```
 
 To run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_example.txt --timescale 215 -S example/leaf_locations.txt -v
+python run_mollusc.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_example.txt --timescale 215 -S example/leaf_locations.txt -v
 ```
 
 ### Location Only
 You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above. 
 For example, to only use spatial data with symmetric displacement and radius = 5, use
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 --spatial_only -v
+python run_mollusc.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/sym_displacement_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --divide --radius 5 --spatial_only -v
 ```
 If you instead want to use the Brownian motion model, use
 ```
-python run_spalin.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only -v
+python run_mollusc.py -c example/character_matrix.csv -t example/true_tree.nwk --delimiter comma -p example/k10_priors.csv --nInitials 1 --randseeds 3103 -o example/brownian_spatialonly_example.txt --timescale 215 -S example/leaf_locations.txt --spatial_only -v
 ```
 
