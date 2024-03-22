@@ -4,7 +4,7 @@
 PROGRAM_NAME = "MOLLUSC"
 PROGRAM_AUTHOR = ["Uyen Mai","Gary Hu","Ben Raphael"]
 PROGRAM_LICENSE = "GNU General Public License, version 3"
-PROGRAM_VERSION = "1.0"
+PROGRAM_VERSION = "1.0.0"
 PROGRAM_YEAR = "2024"
 PROGRAM_INSTITUTE = "Computer Science Department, Princeton University"
 PROGRAM_DESCRIPTION = "Maximum Likelihood Phylogeographic Inference of Cell Motility and Cell Division from Spatial Lineage Tracing Data"
