@@ -12,16 +12,13 @@ python run_mollusc.py --help
 ```
 
 ## Input File Descriptions
-The following are the types of files one needs to run this method
+The following are the required inputs to MOLLUSC
+- Character matrix
+- Tree topology
+- Leaf locations
+- [optional] Prior mutation probabilities (associated with the input character matrix)
 
-- priors.csv (optional)
-- character matrix file
-- leaf_locations.txt
-- true_tree.nwk
-
-You can see examples of these files in the `example` folder.
-
-### character matrix file
+### character matrix
 The first row is a header describing the contents of the subsequent matrix. The first column of the matrix is the name of a cell (in this case, 216_* refers to the fact that the leaves of the tree correspond to the 216th time sample of the video frame data from the intMEMOIR experiment). The remaining columns correspond to a given mutation site across the cells. In other words, for a given row of this matrix, the first entry is the name of the cell, the remaining  entries correspond to state the mutation sites. 
 
 | cell_name  | site_1 | site_2 |
@@ -30,8 +27,13 @@ The first row is a header describing the contents of the subsequent matrix. The 
 | cell_2  | 0  | 2  |
 | cell_3  | 1  | 0  |
 
-### tree topology (newick file)
-This file contains the tree topology for this experiment, in newick format. The labels on the leaf nodes must match the cell names specified in the character matrix.
+See [example/character_matrix.csv](example/character_matrix.csv) for an example.
+
+### tree topology
+The input tree topology must be given in [newick format](https://en.wikipedia.org/wiki/Newick_format#:~:text=In%20mathematics%2C%20Newick%20tree%20format,Maddison%2C%20Christopher%20Meacham%2C%20F.). 
+In addition, the labels on the leaf nodes must match the cell names specified in the character matrix.
+
+See [example/input_tree.nwk](example/input_tree.nwk) for an example.
 
 ### leaf locations file
 This file contains the X-Y coordinates for each of the cells at the leaves of the tree. These should correspond to the cells in the character matrix. Each line of this file should be of the form:
@@ -39,14 +41,16 @@ This file contains the X-Y coordinates for each of the cells at the leaves of th
 ```
 cell_name, x_coordinate, y_coordinate
 ```
+See [example/input_locations.txt](example/input_locations.txt) for an example.
 
-### priors.csv (optional)
+### prior mutation probabilities (optional)
 The file contains prior mutation probabilities that can be provided to our model for the Q matrix of the PMM model (see the original paper for more details). Each site and each mutated state should have a row in this matrix, structured as:
 
 ```
 site_number, state, probability 
 ```
 The prior is not required if one assumes a uniform distribution for mutation states.
+See [example/mutation_priors.csv](example/mutation_priors.csv) for an example.
 
 ## Examples
 The software can run in one of the following three main modes: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. 
