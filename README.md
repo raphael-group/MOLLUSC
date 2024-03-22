@@ -17,8 +17,9 @@ The following are the required inputs to MOLLUSC
 - Tree topology
 - Leaf locations
 - [optional] Prior mutation probabilities (associated with the input character matrix)
+These input files must follow the formats described below.
 
-### character matrix
+### Character matrix
 The first row is a header describing the contents of the subsequent matrix. The first column of the matrix is the name of a cell (in this case, 216_* refers to the fact that the leaves of the tree correspond to the 216th time sample of the video frame data from the intMEMOIR experiment). The remaining columns correspond to a given mutation site across the cells. In other words, for a given row of this matrix, the first entry is the name of the cell, the remaining  entries correspond to state the mutation sites. 
 
 | cell_name  | site_1 | site_2 |
@@ -29,13 +30,13 @@ The first row is a header describing the contents of the subsequent matrix. The 
 
 See [example/character_matrix.csv](example/character_matrix.csv) for an example.
 
-### tree topology
+### Tree topology
 The input tree topology must be given in [newick format](https://en.wikipedia.org/wiki/Newick_format#:~:text=In%20mathematics%2C%20Newick%20tree%20format,Maddison%2C%20Christopher%20Meacham%2C%20F.). 
 In addition, the labels on the leaf nodes must match the cell names specified in the character matrix.
 
 See [example/input_tree.nwk](example/input_tree.nwk) for an example.
 
-### leaf locations file
+### Leaf locations
 This file contains the X-Y coordinates for each of the cells at the leaves of the tree. These should correspond to the cells in the character matrix. Each line of this file should be of the form:
 
 ```
