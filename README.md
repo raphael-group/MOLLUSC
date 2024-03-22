@@ -86,7 +86,7 @@ Before trying the examples, you need to either clone the MOLLUSC repo `git clone
 
 ### Sequence Only Model
 
-To run MOLLUSC using only the sequence mutation model, input the character matrix via `-c` and the tree topology via `-t`. For example: 
+To run MOLLUSC using only the sequence model, input the character matrix via `-c` and the tree topology via `-t`. For example: 
 ```
 run_mollusc -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sequence_only_example.txt --timescale 215 -v
 ```
