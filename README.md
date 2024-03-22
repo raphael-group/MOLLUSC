@@ -45,7 +45,7 @@ cell_name, x_coordinate, y_coordinate
 ```
 See [example/input_locations.txt](example/input_locations.txt) for an example.
 
-### prior mutation probabilities (optional)
+### Prior mutation probabilities (optional)
 The file contains prior mutation probabilities that can be provided to our model for the Q matrix of the PMM model (see the original paper for more details). Each site and each mutated state should have a row in this matrix, structured as:
 
 ```
