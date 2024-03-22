@@ -82,7 +82,7 @@ See [example/mutation_priors.csv](example/mutation_priors.csv) for an example.
 The software can run in one of the following three main modes: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. 
 For each of these modalities we show an example command with the input files in the (example)[example] directory. 
 
-Before trying the examples, you need to either clone the MOLLUSC repo `git clone https://github.com/raphael-group/MOLLUSC.git` or download and unzip (example.zip)[example.zip] to your machine.
+Before trying the examples, you need to either clone the MOLLUSC repo `git clone https://github.com/raphael-group/MOLLUSC.git` or download and unzip [example.zip](example.zip) to your machine.
 
 ### Sequence Only Model
 
