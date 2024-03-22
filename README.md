@@ -1,5 +1,5 @@
 # MOLLUSC 
-Maximum Likelihood Estimation Of Lineage and Location Using Single Cell Spatial Lineage tracing Data
+(Maximum Likelihood Estimation Of Lineage and Location Using Single Cell Spatial Lineage tracing Data)
 
 This repository contains an implementation of MOLLUSC, a cell-specific spatial lineage tracing phylogeographic reconstruction method.
 
