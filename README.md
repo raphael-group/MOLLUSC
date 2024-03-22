@@ -80,39 +80,41 @@ See [example/mutation_priors.csv](example/mutation_priors.csv) for an example.
 
 ## Examples
 The software can run in one of the following three main modes: (1) The sequence only model, (2) Sequence + Location models jointly, and (3) Location only. 
-For each of these modalities we show an example command with the input files in the `example` directory.
+For each of these modalities we show an example command with the input files in the (example)[example] directory. 
+
+Before trying the examples, you need to either clone the MOLLUSC repo `git clone https://github.com/raphael-group/MOLLUSC.git` or download and unzip (example.zip)[example.zip] to your machine.
 
 ### Sequence Only Model
 
-To run this method using only the sequence mutation model, input the character matrix via `-c` and the tree topology via `-t`. For example: 
+To run MOLLUSC using only the sequence mutation model, input the character matrix via `-c` and the tree topology via `-t`. For example: 
 ```
-python run_mollusc.py -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sequence_only_example.txt --timescale 215 -v
+run_mollusc -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sequence_only_example.txt --timescale 215 -v
 ```
 The above command will produce an output file `sequence_only_example.txt`. An example output is provided in `example/use_case_1/sample_output.txt`.
 
 ### Sequence + Location
-To run the method using both forms of data, include the spatial locations via `-S` in addition to `-c` and `-t` as described above. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
+To run MOLLUSC using both forms of data, include the spatial locations via `-S` in addition to `-c` and `-t` as described above. Furthermore, if you include the flags --divide & --radius, then the symmetric displacement model will be used with radius amount equal to the number after the --radius flag. For example, to run symmetric displacement with radius = 5, use
 ```
-python run_mollusc.py -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sym_displacement_example.txt --timescale 215 -S example/input_locations.txt --divide --radius 5 -v
+run_mollusc -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sym_displacement_example.txt --timescale 215 -S example/input_locations.txt --divide --radius 5 -v
 ```
 The above command will produce an output file `sym_displacement_example.txt`. An example output is provided in `example/use_case_2/sample_output.txt`.
 
 To run with Brownian motion, you can either set --radius to be 0, or omit the --divide flag entirely: 
 ```
-python run_mollusc.py -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o browninan_example.txt --timescale 215 -S example/input_locations.txt --divide --radius 5 -v
+run_mollusc -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o browninan_example.txt --timescale 215 -S example/input_locations.txt --divide --radius 5 -v
 ```
 The above command will produce an output file `brownian_example.txt`. An example output is provided in `example/use_case_3/sample_output.txt`.
 
 ### Location Only
-You can use the location only model by including the flag --spatial_only in conjunction on top of the flags mentioned above. 
+To run MOLLUSC using only the location model, use the flag --spatial_only. 
 For example, to only use spatial data with symmetric displacement and radius = 5, use
 ```
-python run_mollusc.py -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sym_displacement_spatialonly_example.txt --timescale 215 -S input_locations.txt --divide --radius 5 --spatial_only -v
+run_mollusc -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sym_displacement_spatialonly_example.txt --timescale 215 -S input_locations.txt --divide --radius 5 --spatial_only -v
 ```
 The above command will produce an output file `sym_displacement_spatialonly_example.txt`. An example output is provided in `example/use_case_4/sample_output.txt`.
 
 If you instead want to use the Brownian motion model, use
 ```
-python run_mollusc.py -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sym_displacement_spatialonly_example.txt --timescale 215 -S input_locations.txt --spatial_only -v
+run_mollusc -c example/character_matrix.csv -t example/input_tree.nwk --delimiter comma -p example/mutation_priors.csv --nInitials 1 --randseeds 3103 -o sym_displacement_spatialonly_example.txt --timescale 215 -S input_locations.txt --spatial_only -v
 ```
 The above command will produce an output file `brownian_spatialonly_example.txt`. An example output is provided in `example/use_case_5/sample_output.txt`.
