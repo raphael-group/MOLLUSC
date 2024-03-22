@@ -3,8 +3,31 @@
 
 This repository contains an implementation of MOLLUSC, a cell-specific spatial lineage tracing phylogeographic reconstruction method.
 
-## Prerequisite Libraries/Packages
-The following Python packages are required: cmake, cvxpy, numpy, scipy, setuptools, treeswift.
+# Installation
+## Precursors 
+The software requires python >= 3.8 and pip.
+
+## Install from PyPI
+The latest stable version is available on PyPI. To install, use the following command:
+```
+pip install mollusc-slt
+```
+After installation, type the following
+```
+run_mollusc --help
+```
+to see the commandline help of MOLLUSC.
+
+## [For developers] Other installation options
+New releases are available on the [github releases](https://github.com/raphael-group/MOLLUSC/releases). To get a specific release version, simply download the corresponding `.whl` file and install using pip. For instance, to install [MOLLUSC version 1.0.0](https://github.com/raphael-group/MOLLUSC/releases/tag/v1.0.0), you need to download the file [MOLLUSC_SLT-1.0.0-py3-none-any.whl](https://github.com/raphael-group/MOLLUSC/releases/download/v1.0.0/MOLLUSC_SLT-1.0.0-py3-none-any.whl), then use `pip` to install it, as follows:
+```
+    pip install MOLLUSC_SLT-1.0.0-py3-none-any.whl
+```
+Alternatively, if you wish to install the (developing) version available on Github, you need to install from source. Do the following steps:
+1. Clone the MOLLUSC github to your machine:
+``git clone https://github.com/raphael-group/LAML.git``
+2. Change directory to the ``MOLLUSC`` folder. Then use ``pip`` to install from source.
+``pip install .``
 
 ## Usage
 A description of all the other input flags (as well as the ones described above for the different data input modalities) can be seen by running:
