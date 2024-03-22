@@ -17,6 +17,7 @@ The following are the required inputs to MOLLUSC
 - Tree topology
 - Leaf locations
 - [optional] Prior mutation probabilities (associated with the input character matrix)
+
 These input files must follow the formats described below.
 
 ### Character matrix
